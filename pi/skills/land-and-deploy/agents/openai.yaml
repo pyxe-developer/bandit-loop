@@ -1,0 +1,5 @@
+interface:
+  display_name: Land And Deploy
+  short_description: Assisted governed delivery surface.
+policy:
+  allow_implicit_invocation: false

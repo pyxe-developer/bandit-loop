@@ -1,0 +1,117 @@
+{
+  "schema_version": "codex-bandit.install-agents-fixtures.v1",
+  "fixtures": [
+    {
+      "name": "fixture_08_install_agents_plan_paths_policies",
+      "scenario": "plan",
+      "expected": {
+        "status": "pass",
+        "managed_path_count": 7,
+        "approval_required": "INSTALL codex-bandit agents"
+      }
+    },
+    {
+      "name": "fixture_08_install_agents_requires_explicit_approval",
+      "scenario": "install_without_approval",
+      "expected": {
+        "status": "blocked",
+        "blocker_code": "E_INSTALL_AGENTS_APPROVAL_REQUIRED"
+      }
+    },
+    {
+      "name": "fixture_08_install_agents_installed_validates_enforced",
+      "scenario": "installed",
+      "expected": {
+        "status": "pass",
+        "route_card_enforced_valid": true
+      }
+    },
+    {
+      "name": "fixture_08_install_agents_missing_blocks_enforced",
+      "scenario": "missing",
+      "expected": {
+        "status": "blocked",
+        "blocker_code": "E_ENFORCED_AGENT_MISSING"
+      }
+    },
+    {
+      "name": "fixture_08_install_agents_drift_blocks_enforced",
+      "scenario": "drifted",
+      "expected": {
+        "status": "blocked",
+        "blocker_code": "E_ENFORCED_AGENT_CONFIG_STALE"
+      }
+    },
+    {
+      "name": "fixture_08_install_agents_non_invocable_blocks_enforced",
+      "scenario": "non_invocable",
+      "expected": {
+        "status": "blocked",
+        "blocker_code": "E_ENFORCED_AGENT_NOT_INVOCABLE"
+      }
+    },
+    {
+      "name": "fixture_08_install_agents_uninstall_idempotent_keeps_unrelated",
+      "scenario": "uninstall_safety",
+      "expected": {
+        "status": "pass",
+        "unrelated_file_preserved": true,
+        "second_uninstall_status": "pass"
+      }
+    },
+    {
+      "name": "fixture_08_enforced_expired_validation_evidence_blocks",
+      "scenario": "expired_validation_evidence",
+      "expected": {
+        "status": "invalid_input",
+        "error_code": "E_ENFORCED_MODE_NOT_VALIDATED"
+      }
+    },
+    {
+      "name": "fixture_08_enforced_wrong_agent_set_blocks",
+      "scenario": "wrong_agent_set",
+      "expected": {
+        "status": "invalid_input",
+        "error_code": "E_ENFORCED_MODE_NOT_VALIDATED"
+      }
+    },
+    {
+      "name": "fixture_08_enforced_wrong_validation_evidence_id_blocks",
+      "scenario": "wrong_validation_evidence_id",
+      "expected": {
+        "status": "invalid_input",
+        "error_code": "E_ENFORCED_MODE_NOT_VALIDATED"
+      }
+    },
+    {
+      "name": "fixture_08_uninstall_manifest_tampered_outside_path_survives",
+      "scenario": "uninstall_manifest_tamper",
+      "expected": {
+        "status": "pass",
+        "outside_file_preserved": true,
+        "skip_reason": "not an expected Codex Bandit path",
+        "manifest_retained": true
+      }
+    },
+    {
+      "name": "fixture_08_uninstall_drifted_managed_path_skipped",
+      "scenario": "uninstall_drifted_managed",
+      "expected": {
+        "status": "pass",
+        "drifted_file_retained": true,
+        "skip_reason": "current file is drifted or not plugin-managed",
+        "manifest_retained": true
+      }
+    },
+    {
+      "name": "fixture_08_uninstall_symlinked_managed_path_target_survives",
+      "scenario": "uninstall_symlinked_managed",
+      "expected": {
+        "status": "pass",
+        "outside_file_preserved": true,
+        "skip_reason": "current file is drifted or not plugin-managed",
+        "manifest_retained": true
+      }
+    }
+  ]
+}

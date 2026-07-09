@@ -1,0 +1,40 @@
+sequenceDiagram
+  autonumber
+  actor Human as Human (A9)
+  participant Orch as Orchestrator (A1)
+  participant Role as Producer role (A2-A8)
+  participant Scripts as scripts (route-card / evidence-ledger)
+  participant Verify as verify-stage reducer (A10)
+
+  Note over Orch,Verify: One stage, ASSISTED mode. Producer proposes; orchestrator records; reducer adjudicates.
+
+  Orch->>Scripts: route-card validate
+  Scripts-->>Orch: ok (GUARD-001) or E_ROUTE_CARD_* (exit 2)
+  Orch->>Role: stage-dispatch-request (subject, role_contract, required_inputs)
+  Role-->>Orch: role-output (outcome, proposed_evidence[actor=producer], blockers, reroute)
+
+  alt outcome = success
+    Orch->>Scripts: evidence-ledger append (actor=producer, recorded_by=orchestrator, identity_strength=declared, subject.head_sha = ACTUAL repo HEAD  %% Q-001
+    Scripts-->>Orch: evidence_id (append-order authoritative; W_CREATED_AT_BACKDATED if needed)
+    Orch->>Verify: verify-stage <stage>
+    Verify-->>Orch: status (pass | blocked | stale | changes_requested | cannot_judge)
+    alt status = pass
+      Orch->>Scripts: route-card update (current_stage++, prev/new digest)  %% INV-013
+      Orch->>Orch: advance to next state (transitions.md)
+    else status != pass
+      Orch->>Role: reroute / block owner (consume budget if applicable)
+    end
+  else outcome = blocked / reroute / cannot_judge
+    Orch->>Scripts: append blocker/verdict; reducer decides budget
+  else outcome = manual_continuation
+    Orch-->>Human: stop with structured next action (no advance)
+  end
+
+  Note over Human,Orch: DELIVERY - HITL merge is the human gate.
+  Orch->>Human: summarize exact merge action (PR #, head SHA)
+  Human-->>Orch: hitl_merge_approval (pr_number, head_sha, expires_at)
+  Orch->>Verify: verify-stage hitl_merge_checkpoint
+  Verify-->>Orch: pass only if GUARD-009 (PR+head+expected+remote all match) [+ GUARD-016 Q-002]
+  Orch->>Scripts: land-and-deploy merge (only now); deploy iff deploy_contract + health pass
+
+  Note over Orch,Role: ENFORCED mode delta: same payload; Role is an installed TOML agent address;<br/>Orch expects validated_agent identity evidence and FAILS CLOSED if agent set missing/stale (GUARD-012).

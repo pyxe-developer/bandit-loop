@@ -1,0 +1,1563 @@
+{
+  "schema_version": "codex-bandit.evidence-reducer-fixtures.v1",
+  "fixtures": [
+    {
+      "name": "fixture_02b_red_pass_active",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_red_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:red:attempt-1",
+          "record_type": "command",
+          "stage": "red",
+          "actor": {
+            "role": "test_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "red_fails_for_expected_reason",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "red",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 1,
+            "expected_failure_result": {
+              "matched": true,
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "matched_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "unexpected_patterns": []
+            }
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/red.md",
+            "digest": "sha256:redreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "tests/invoice.test.ts"
+          ],
+          "completed_at": "2026-07-09T12:11:00Z"
+        }
+      ],
+      "expected": {
+        "stage": "red",
+        "status": "pass",
+        "active_evidence_ids": [
+          "ev_red_001"
+        ],
+        "blockers": []
+      }
+    },
+    {
+      "name": "fixture_02b_red_wrong_failure_blocked",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_red_wrong_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:red:attempt-1",
+          "record_type": "command",
+          "stage": "red",
+          "actor": {
+            "role": "test_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "red_fails_for_expected_reason",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "status": "blocked",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "red",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 1,
+            "expected_failure_result": {
+              "matched": false,
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "matched_include": [],
+              "unexpected_patterns": [
+                "Cannot find module"
+              ]
+            }
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/red.md",
+            "digest": "sha256:redreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "tests/invoice.test.ts"
+          ],
+          "completed_at": "2026-07-09T12:11:00Z",
+          "blocker": {
+            "code": "E_RED_UNEXPECTED_FAILURE",
+            "severity": "blocker",
+            "message": "RED failed for infrastructure reason, not expected assertion.",
+            "stage": "red",
+            "owner_role": "test_writer",
+            "retryable": true,
+            "requires_human": false
+          }
+        }
+      ],
+      "expected": {
+        "stage": "red",
+        "status": "blocked",
+        "blockers": [
+          {
+            "code": "E_RED_UNEXPECTED_FAILURE"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fixture_02b_multi_commit_red_green_active",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_red_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:red:attempt-1",
+          "record_type": "command",
+          "stage": "red",
+          "actor": {
+            "role": "test_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "red_fails_for_expected_reason",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "red",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 1,
+            "expected_failure_result": {
+              "matched": true,
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "matched_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "unexpected_patterns": []
+            }
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/red.md",
+            "digest": "sha256:redreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "tests/invoice.test.ts"
+          ],
+          "completed_at": "2026-07-09T12:11:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-1",
+          "record_type": "command",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_passes_required_commands",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "green",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 0
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/green.md",
+            "digest": "sha256:greenreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "src/invoice.ts"
+          ],
+          "completed_at": "2026-07-09T12:21:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_adv_approve_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:adversarial:attempt-1",
+          "record_type": "verdict",
+          "stage": "adversarial",
+          "actor": {
+            "role": "adversarial_reviewer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "adversarial_approved_current_review_package",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "review_package_digest": "sha256:reviewpkg"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "verdict": {
+            "schema_version": "codex-bandit.verdict.v1",
+            "verdict": "approve",
+            "rubric_ids": [
+              "S4_REVIEW",
+              "R6_EVIDENCE_BINDING"
+            ],
+            "reviewed_evidence_ids": [
+              "ev_red_001",
+              "ev_green_001"
+            ],
+            "review_package_digest": "sha256:reviewpkg",
+            "subject": {
+              "base_ref": "main",
+              "head_ref": "codex-bandit/cb-123",
+              "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "review_package_digest": "sha256:reviewpkg"
+            },
+            "findings": [],
+            "test_surface_findings": [],
+            "cannot_judge_reason": null
+          },
+          "completed_at": "2026-07-09T12:35:00Z"
+        }
+      ],
+      "expected": {
+        "stage": "adversarial",
+        "status": "pass",
+        "active_evidence_ids": [
+          "ev_red_001",
+          "ev_green_001",
+          "ev_adv_approve_001"
+        ]
+      }
+    },
+    {
+      "name": "fixture_02b_green_stale_head",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-1",
+          "record_type": "command",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_passes_required_commands",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "green",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 0
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/green.md",
+            "digest": "sha256:greenreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "src/invoice.ts"
+          ],
+          "completed_at": "2026-07-09T12:21:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_diverged_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-1",
+          "record_type": "command",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_passes_required_commands",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "cccccccccccccccccccccccccccccccccccccccc"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "green",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 0
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/green.md",
+            "digest": "sha256:greenreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "src/invoice.ts"
+          ],
+          "completed_at": "2026-07-09T12:21:00Z"
+        }
+      ],
+      "expected": {
+        "stage": "green",
+        "status": "stale",
+        "blockers": [
+          {
+            "code": "E_STAGE_ATTEMPT_SUBJECT_DIVERGED"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fixture_02b_adversarial_changes_requested_then_repair",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_red_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:red:attempt-1",
+          "record_type": "command",
+          "stage": "red",
+          "actor": {
+            "role": "test_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "red_fails_for_expected_reason",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "red",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 1,
+            "expected_failure_result": {
+              "matched": true,
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "matched_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "unexpected_patterns": []
+            }
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/red.md",
+            "digest": "sha256:redreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "tests/invoice.test.ts"
+          ],
+          "completed_at": "2026-07-09T12:11:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-1",
+          "record_type": "command",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_passes_required_commands",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "green",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 0
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/green.md",
+            "digest": "sha256:greenreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "src/invoice.ts"
+          ],
+          "completed_at": "2026-07-09T12:21:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_adv_changes_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:adversarial:attempt-1",
+          "record_type": "verdict",
+          "stage": "adversarial",
+          "actor": {
+            "role": "adversarial_reviewer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "adversarial_found_required_repairs",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "review_package_digest": "sha256:reviewpkg"
+          },
+          "status": "changes_requested",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "verdict": {
+            "schema_version": "codex-bandit.verdict.v1",
+            "verdict": "changes_requested",
+            "rubric_ids": [
+              "R3_IMPLEMENTATION_QUALITY"
+            ],
+            "reviewed_evidence_ids": [
+              "ev_red_001",
+              "ev_green_001"
+            ],
+            "review_package_digest": "sha256:reviewpkg",
+            "subject": {
+              "base_ref": "main",
+              "head_ref": "codex-bandit/cb-123",
+              "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "review_package_digest": "sha256:reviewpkg"
+            },
+            "findings": [
+              {
+                "id": "finding_001",
+                "severity": "high",
+                "owner_role": "code_writer",
+                "rubric_id": "R3_IMPLEMENTATION_QUALITY",
+                "summary": "Negative totals not handled.",
+                "evidence": [
+                  "src/invoice.ts"
+                ],
+                "required_action": "Handle negative totals."
+              }
+            ],
+            "test_surface_findings": [],
+            "cannot_judge_reason": null
+          }
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_repair_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-2",
+          "record_type": "command",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_passes_required_commands",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "cccccccccccccccccccccccccccccccccccccccc"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "green",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 0
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/green.md",
+            "digest": "sha256:greenreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "src/invoice.ts"
+          ],
+          "completed_at": "2026-07-09T12:21:00Z",
+          "parent_record_id": "ev_adv_changes_001"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_adv_approve_repair_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:adversarial:attempt-1",
+          "record_type": "verdict",
+          "stage": "adversarial",
+          "actor": {
+            "role": "adversarial_reviewer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "adversarial_approved_repair",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "cccccccccccccccccccccccccccccccccccccccc",
+            "review_package_digest": "sha256:reviewpkg"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "verdict": {
+            "schema_version": "codex-bandit.verdict.v1",
+            "verdict": "approve",
+            "rubric_ids": [
+              "S4_REVIEW",
+              "R6_EVIDENCE_BINDING"
+            ],
+            "reviewed_evidence_ids": [
+              "ev_red_001",
+              "ev_green_repair_001"
+            ],
+            "review_package_digest": "sha256:reviewpkg",
+            "subject": {
+              "base_ref": "main",
+              "head_ref": "codex-bandit/cb-123",
+              "head_sha": "cccccccccccccccccccccccccccccccccccccccc",
+              "review_package_digest": "sha256:reviewpkg"
+            },
+            "findings": [],
+            "test_surface_findings": [],
+            "cannot_judge_reason": null
+          },
+          "parent_record_id": "ev_adv_changes_001",
+          "supersedes": [
+            "ev_adv_changes_001"
+          ]
+        }
+      ],
+      "expected": {
+        "stage": "adversarial",
+        "status": "pass",
+        "active_evidence_ids": [
+          "ev_red_001",
+          "ev_green_repair_001",
+          "ev_adv_approve_repair_001"
+        ],
+        "inactive_evidence_ids": [
+          "ev_adv_changes_001"
+        ],
+        "attempt": {
+          "used_total": 1
+        }
+      }
+    },
+    {
+      "name": "fixture_02b_cannot_judge_missing_review_package",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_red_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:red:attempt-1",
+          "record_type": "command",
+          "stage": "red",
+          "actor": {
+            "role": "test_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "red_fails_for_expected_reason",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "red",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 1,
+            "expected_failure_result": {
+              "matched": true,
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "matched_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "unexpected_patterns": []
+            }
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/red.md",
+            "digest": "sha256:redreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "tests/invoice.test.ts"
+          ],
+          "completed_at": "2026-07-09T12:11:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-1",
+          "record_type": "command",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_passes_required_commands",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "green",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 0
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/green.md",
+            "digest": "sha256:greenreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "src/invoice.ts"
+          ],
+          "completed_at": "2026-07-09T12:21:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_adv_cannot_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:adversarial:attempt-1",
+          "record_type": "verdict",
+          "stage": "adversarial",
+          "actor": {
+            "role": "adversarial_reviewer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "reviewer_cannot_judge_missing_package",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "status": "cannot_judge",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "verdict": {
+            "schema_version": "codex-bandit.verdict.v1",
+            "verdict": "cannot_judge",
+            "rubric_ids": [
+              "R6_EVIDENCE_BINDING"
+            ],
+            "reviewed_evidence_ids": [
+              "ev_red_001",
+              "ev_green_001"
+            ],
+            "review_package_digest": null,
+            "subject": {
+              "base_ref": "main",
+              "head_ref": "codex-bandit/cb-123",
+              "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "findings": [],
+            "test_surface_findings": [],
+            "cannot_judge_reason": {
+              "code": "MISSING_REVIEW_PACKAGE",
+              "message": "review_package_digest is missing"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "stage": "adversarial",
+        "status": "cannot_judge",
+        "attempt": {
+          "retry_budget_consumed": true
+        },
+        "blockers": [
+          {
+            "code": "MISSING_REVIEW_PACKAGE"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fixture_02b_provider_timeout_cannot_judge",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_red_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:red:attempt-1",
+          "record_type": "command",
+          "stage": "red",
+          "actor": {
+            "role": "test_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "red_fails_for_expected_reason",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "red",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 1,
+            "expected_failure_result": {
+              "matched": true,
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "matched_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "unexpected_patterns": []
+            }
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/red.md",
+            "digest": "sha256:redreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "tests/invoice.test.ts"
+          ],
+          "completed_at": "2026-07-09T12:11:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-1",
+          "record_type": "command",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_passes_required_commands",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "green",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 0
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/green.md",
+            "digest": "sha256:greenreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "src/invoice.ts"
+          ],
+          "completed_at": "2026-07-09T12:21:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_adv_timeout_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:adversarial:attempt-1",
+          "record_type": "verdict",
+          "stage": "adversarial",
+          "actor": {
+            "role": "adversarial_reviewer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "reviewer_cannot_judge_missing_package",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "status": "blocked",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "verdict": {
+            "schema_version": "codex-bandit.verdict.v1",
+            "verdict": "cannot_judge",
+            "rubric_ids": [
+              "R6_EVIDENCE_BINDING"
+            ],
+            "reviewed_evidence_ids": [
+              "ev_red_001",
+              "ev_green_001"
+            ],
+            "review_package_digest": null,
+            "subject": {
+              "base_ref": "main",
+              "head_ref": "codex-bandit/cb-123",
+              "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "findings": [],
+            "test_surface_findings": [],
+            "cannot_judge_reason": {
+              "code": "PROVIDER_TIMEOUT",
+              "message": "provider timed out"
+            }
+          },
+          "blocker": {
+            "code": "E_PROVIDER_TIMEOUT",
+            "severity": "blocker",
+            "message": "Provider timeout prevented review.",
+            "stage": "adversarial",
+            "owner_role": "adversarial_reviewer",
+            "retryable": true,
+            "requires_human": false
+          }
+        }
+      ],
+      "expected": {
+        "stage": "adversarial",
+        "status": "blocked",
+        "attempt": {
+          "retry_budget_consumed": false
+        },
+        "blockers": [
+          {
+            "code": "E_PROVIDER_TIMEOUT"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fixture_02b_deferred_delivery_closeout",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_red_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:red:attempt-1",
+          "record_type": "command",
+          "stage": "red",
+          "actor": {
+            "role": "test_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "red_fails_for_expected_reason",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "red",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 1,
+            "expected_failure_result": {
+              "matched": true,
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "matched_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "unexpected_patterns": []
+            }
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/red.md",
+            "digest": "sha256:redreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "tests/invoice.test.ts"
+          ],
+          "completed_at": "2026-07-09T12:11:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-1",
+          "record_type": "command",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_passes_required_commands",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "green",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 0
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/green.md",
+            "digest": "sha256:greenreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "src/invoice.ts"
+          ],
+          "completed_at": "2026-07-09T12:21:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_adv_approve_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:adversarial:attempt-1",
+          "record_type": "verdict",
+          "stage": "adversarial",
+          "actor": {
+            "role": "adversarial_reviewer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "adversarial_approved_current_review_package",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "review_package_digest": "sha256:reviewpkg"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "verdict": {
+            "schema_version": "codex-bandit.verdict.v1",
+            "verdict": "approve",
+            "rubric_ids": [
+              "S4_REVIEW",
+              "R6_EVIDENCE_BINDING"
+            ],
+            "reviewed_evidence_ids": [
+              "ev_red_001",
+              "ev_green_001"
+            ],
+            "review_package_digest": "sha256:reviewpkg",
+            "subject": {
+              "base_ref": "main",
+              "head_ref": "codex-bandit/cb-123",
+              "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "review_package_digest": "sha256:reviewpkg"
+            },
+            "findings": [],
+            "test_surface_findings": [],
+            "cannot_judge_reason": null
+          },
+          "completed_at": "2026-07-09T12:35:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_prepare_deferred_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:prepare_pr:attempt-1",
+          "record_type": "transition",
+          "stage": "prepare_pr",
+          "actor": {
+            "role": "prepare_pr",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "delivery_deferred_by_route_card",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "review_package_digest": "sha256:reviewpkg"
+          },
+          "status": "deferred",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "transition": {
+            "from_stage": "prepare_pr",
+            "to_stage": "closeout",
+            "reason": "User deferred remote delivery.",
+            "previous_route_card_digest": "sha256:route1",
+            "new_route_card_digest": "sha256:route2"
+          }
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_closeout_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:closeout:attempt-1",
+          "record_type": "note",
+          "stage": "closeout",
+          "actor": {
+            "role": "closeout_retro",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "closeout_recorded_deferred_delivery",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "review_package_digest": "sha256:reviewpkg"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "note": {
+            "summary": "Local workflow complete; delivery deferred.",
+            "visibility": "handoff"
+          }
+        }
+      ],
+      "expected": {
+        "stage": "closeout",
+        "status": "pass",
+        "delivery_state": "delivery_deferred"
+      }
+    },
+    {
+      "name": "fixture_02b_partial_jsonl_append",
+      "jsonl_lines": [
+        "{\"schema_version\": \"codex-bandit.evidence.v1\", \"id\": \"ev_red_001\", \"work_item_id\": \"cb-123\", \"stage_attempt_id\": \"cb-123:red:attempt-1\", \"record_type\": \"command\", \"stage\": \"red\", \"actor\": {\"role\": \"test_writer\", \"mode\": \"assisted\"}, \"recorded_by\": {\"role\": \"orchestrator\", \"mode\": \"assisted\"}, \"identity_strength\": \"declared\", \"claim\": \"red_fails_for_expected_reason\", \"subject_scope\": \"product\", \"subject\": {\"base_ref\": \"main\", \"head_ref\": \"codex-bandit/cb-123\", \"head_sha\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"status\": \"pass\", \"tool_version\": \"0.1.0\", \"created_at\": \"2026-07-09T12:10:00Z\", \"command\": {\"name\": \"red\", \"argv\": [\"npm\", \"test\", \"--\", \"tests/invoice.test.ts\"], \"cwd\": \".\", \"exit_code\": 1, \"expected_failure_result\": {\"matched\": true, \"test_ids\": [\"invoice rounds half-up\"], \"failure_kind\": \"assertion\", \"matched_include\": [\"Expected 10.13\", \"Received 10.12\"], \"unexpected_patterns\": []}}, \"artifact\": {\"path\": \".codex-bandit/work/cb-123/reports/red.md\", \"digest\": \"sha256:redreport\", \"media_type\": \"text/markdown\"}, \"files_changed\": [\"tests/invoice.test.ts\"], \"completed_at\": \"2026-07-09T12:11:00Z\"}",
+        "{{truncated"
+      ],
+      "expected": {
+        "stage": "red",
+        "status": "blocked",
+        "blockers": [
+          {
+            "code": "E_LEDGER_MALFORMED"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fixture_02b_duplicate_conflict",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_red_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:red:attempt-1",
+          "record_type": "command",
+          "stage": "red",
+          "actor": {
+            "role": "test_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "red_fails_for_expected_reason",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "red",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 1,
+            "expected_failure_result": {
+              "matched": true,
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "matched_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "unexpected_patterns": []
+            }
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/red.md",
+            "digest": "sha256:redreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "tests/invoice.test.ts"
+          ],
+          "completed_at": "2026-07-09T12:11:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_red_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:red:attempt-1",
+          "record_type": "command",
+          "stage": "red",
+          "actor": {
+            "role": "test_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "conflicting_duplicate_payload",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "red",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 1,
+            "expected_failure_result": {
+              "matched": true,
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "matched_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "unexpected_patterns": []
+            }
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/red.md",
+            "digest": "sha256:redreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "tests/invoice.test.ts"
+          ],
+          "completed_at": "2026-07-09T12:11:00Z"
+        }
+      ],
+      "expected": {
+        "status": "blocked",
+        "blockers": [
+          {
+            "code": "E_DUPLICATE_EVIDENCE_ID"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fixture_02b_backdated_created_at_append_order",
+      "events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-1",
+          "record_type": "command",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_passes_required_commands",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "status": "pass",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:10:00Z",
+          "command": {
+            "name": "green",
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "exit_code": 0
+          },
+          "artifact": {
+            "path": ".codex-bandit/work/cb-123/reports/green.md",
+            "digest": "sha256:greenreport",
+            "media_type": "text/markdown"
+          },
+          "files_changed": [
+            "src/invoice.ts"
+          ],
+          "completed_at": "2026-07-09T12:21:00Z"
+        },
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_green_blocker_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:green:attempt-1",
+          "record_type": "blocker",
+          "stage": "green",
+          "actor": {
+            "role": "code_writer",
+            "mode": "assisted"
+          },
+          "recorded_by": {
+            "role": "orchestrator",
+            "mode": "assisted"
+          },
+          "identity_strength": "declared",
+          "claim": "green_later_blocker",
+          "subject_scope": "product",
+          "subject": {
+            "base_ref": "main",
+            "head_ref": "codex-bandit/cb-123",
+            "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "review_package_digest": "sha256:reviewpkg"
+          },
+          "status": "blocked",
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T11:00:00Z",
+          "blocker": {
+            "code": "E_FORBIDDEN_PATH_CHANGED",
+            "severity": "blocker",
+            "message": "Test file edited during GREEN.",
+            "stage": "green",
+            "owner_role": "code_writer",
+            "retryable": true,
+            "requires_human": false
+          }
+        }
+      ],
+      "expected": {
+        "stage": "green",
+        "status": "blocked",
+        "active_evidence_ids": [
+          "ev_green_blocker_001"
+        ],
+        "warnings": [
+          {
+            "code": "W_CREATED_AT_BACKDATED"
+          }
+        ]
+      }
+    }
+  ]
+}

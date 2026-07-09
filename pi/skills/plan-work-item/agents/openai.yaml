@@ -1,0 +1,5 @@
+interface:
+  display_name: Plan Work Item
+  short_description: Assisted planning surface for Codex Bandit route cards.
+policy:
+  allow_implicit_invocation: false
