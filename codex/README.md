@@ -16,6 +16,34 @@ Full optional surface ships in this release:
 
 No optional integration is deferred. The limits below are still real.
 
+## Install
+
+From the repository root, install the local Codex plugin:
+
+```sh
+codex/scripts/install-plugin
+```
+
+The installer creates a local marketplace under
+`$CODEX_HOME/local-marketplaces/codex-bandit` or
+`~/.codex/local-marketplaces/codex-bandit`, then runs `codex plugin add`.
+Start a new Codex session after installation so plugin capabilities are loaded.
+
+Optional local integrations are explicit:
+
+```sh
+codex/scripts/install-plugin --with-agents
+codex/scripts/install-plugin --with-hooks
+codex/scripts/install-plugin --with-all
+```
+
+`--with-agents` installs the bundled enforced-mode custom agents under
+`$CODEX_HOME/agents` or `~/.codex/agents` unless `--agent-home` is supplied.
+`--with-hooks` installs the advisory Git/session hooks into the target Git repo.
+Use `--repo-root /path/to/repo` to target a repo other than the current Git
+checkout. Hooks exit 0 by default; set `CODEX_BANDIT_HOOK_BLOCKING=1` only when
+you want them to block commits or pushes.
+
 ## Assisted Mode
 
 Use assisted mode when you want the workflow guardrails without installing

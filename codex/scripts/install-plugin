@@ -1,0 +1,286 @@
+#!/usr/bin/env python3
+"""Install Codex Bandit as a local Codex plugin.
+
+This wrapper keeps the easy path plugin-only, and delegates optional local
+integrations to the bundled installers that own their safety checks.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shlex
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+
+PLUGIN_NAME = "codex-bandit"
+DEFAULT_MARKETPLACE_NAME = "codex-bandit-local"
+SCRIPT_REQUEST = "codex-bandit.script-request.v1"
+WORK_ITEM_ID = "codex-bandit-install"
+
+
+class InstallFailure(Exception):
+    pass
+
+
+def shlex_join(args: list[str]) -> str:
+    return shlex.join(args)
+
+
+def run_command(args: list[str], *, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    try:
+        proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env, check=False)
+    except OSError as exc:
+        reason = exc.strerror or str(exc)
+        raise InstallFailure(
+            f"Unable to run command: {shlex_join(args)} ({reason}). "
+            "Install the required executable or pass --codex-cli for the Codex CLI."
+        ) from exc
+    if proc.stdout:
+        print(proc.stdout, end="")
+    if proc.stderr:
+        print(proc.stderr, end="", file=sys.stderr)
+    if proc.returncode != 0:
+        raise InstallFailure(f"Command failed ({proc.returncode}): {shlex_join(args)}")
+    return proc
+
+
+def run_json_script(script: Path, request: dict[str, Any]) -> dict[str, Any]:
+    try:
+        proc = subprocess.run(
+            [str(script)],
+            input=json.dumps(request, separators=(",", ":")),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+        )
+    except OSError as exc:
+        reason = exc.strerror or str(exc)
+        raise InstallFailure(
+            f"Unable to run {script.name} at {script}: {reason}. "
+            "Ensure this checkout preserved executable permissions."
+        ) from exc
+    if proc.stderr:
+        print(proc.stderr, end="", file=sys.stderr)
+    try:
+        payload = json.loads(proc.stdout)
+    except json.JSONDecodeError as exc:
+        if proc.stdout:
+            print(proc.stdout, end="")
+        raise InstallFailure(f"{script.name} did not return JSON: {exc.msg}") from exc
+
+    if proc.returncode != 0 or not payload.get("ok"):
+        print_json_failure(script.name, payload)
+        raise InstallFailure(f"{script.name} failed with status {payload.get('status')}")
+    return payload
+
+
+def print_json_failure(name: str, payload: dict[str, Any]) -> None:
+    print(f"{name}: status={payload.get('status')} ok={payload.get('ok')}", file=sys.stderr)
+    for group in ("blockers", "errors", "warnings"):
+        items = payload.get(group)
+        if not items:
+            continue
+        print(f"{group}:", file=sys.stderr)
+        for item in items:
+            code = item.get("code", "UNKNOWN")
+            message = item.get("message", "")
+            print(f"  - {code}: {message}", file=sys.stderr)
+    result = payload.get("result")
+    if isinstance(result, dict):
+        for key in ("conflicts", "required_approval"):
+            if key in result:
+                print(f"{key}: {result[key]}", file=sys.stderr)
+
+
+def git_root(start: Path) -> Path:
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(start), "rev-parse", "--show-toplevel"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return start.resolve()
+    if proc.returncode == 0 and proc.stdout.strip():
+        return Path(proc.stdout.strip()).resolve()
+    return start.resolve()
+
+
+def default_codex_home() -> Path:
+    raw = os.environ.get("CODEX_HOME")
+    if raw:
+        return Path(raw).expanduser().resolve()
+    return (Path.home() / ".codex").resolve()
+
+
+def default_plugin_root() -> Path:
+    return Path(__file__).resolve().parents[1]
+
+
+def ensure_plugin_root(path: Path) -> Path:
+    root = path.expanduser().resolve()
+    manifest = root / ".codex-plugin" / "plugin.json"
+    if not manifest.exists():
+        raise InstallFailure(f"Plugin manifest not found: {manifest}")
+    return root
+
+
+def write_marketplace(root: Path, plugin_root: Path, name: str) -> None:
+    marketplace_json = root / ".agents" / "plugins" / "marketplace.json"
+    plugin_dir = root / "plugins"
+    link = plugin_dir / PLUGIN_NAME
+    marketplace_json.parent.mkdir(parents=True, exist_ok=True)
+    plugin_dir.mkdir(parents=True, exist_ok=True)
+
+    if link.is_symlink():
+        target = link.resolve(strict=False)
+        if target != plugin_root:
+            raise InstallFailure(f"Refusing to replace existing symlink: {link} -> {target}")
+    elif not link.exists():
+        link.symlink_to(plugin_root, target_is_directory=True)
+    else:
+        raise InstallFailure(f"Refusing to replace existing non-symlink: {link}")
+
+    marketplace = {
+        "name": name,
+        "interface": {"displayName": "Codex Bandit Local"},
+        "plugins": [
+            {
+                "name": PLUGIN_NAME,
+                "source": {"source": "local", "path": f"./plugins/{PLUGIN_NAME}"},
+                "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+                "category": "Developer Tools",
+            }
+        ],
+    }
+    marketplace_json.write_text(json.dumps(marketplace, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def request_base(command: str, operation: str, repo_root: Path, *, request_suffix: str) -> dict[str, Any]:
+    route_card_path = f".codex-bandit/work/{WORK_ITEM_ID}/route-card.json"
+    ledger_path = f".codex-bandit/work/{WORK_ITEM_ID}/evidence.jsonl"
+    return {
+        "schema_version": SCRIPT_REQUEST,
+        "command": command,
+        "operation": operation,
+        "repo_root": str(repo_root),
+        "work_item_id": WORK_ITEM_ID,
+        "route_card_path": route_card_path,
+        "ledger_path": ledger_path,
+        "input": {},
+        "caller": {"role": "orchestrator", "mode": "assisted"},
+        "request_id": f"req_{command}_{request_suffix}",
+    }
+
+
+def install_agents(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> None:
+    request = request_base("install-agents", "install", repo_root, request_suffix="install")
+    request["input"] = {
+        "approval": "INSTALL codex-bandit agents",
+        "codex_cli_path": args.codex_cli,
+        "installed_by": args.installed_by,
+    }
+    for attr, key in [
+        ("agent_home", "agent_home"),
+        ("model", "model"),
+        ("model_provider", "model_provider"),
+        ("model_reasoning_effort", "model_reasoning_effort"),
+    ]:
+        value = getattr(args, attr)
+        if value:
+            request["input"][key] = value
+
+    payload = run_json_script(plugin_root / "scripts" / "install-agents", request)
+    evidence = payload.get("result", {}).get("validation_evidence", {})
+    evidence_id = evidence.get("id")
+    if evidence_id:
+        print(f"Installed enforced agents; validation evidence: {evidence_id}")
+    else:
+        print("Installed enforced agents.")
+
+    validate = request_base("install-agents", "validate", repo_root, request_suffix="validate")
+    validate["input"] = {key: value for key, value in request["input"].items() if key != "approval"}
+    validation = run_json_script(plugin_root / "scripts" / "install-agents", validate)
+    validation_id = next(iter(validation.get("evidence_ids", [])), None)
+    if validation_id:
+        print(f"Validated enforced agents; evidence: {validation_id}")
+    else:
+        print("Validated enforced agents.")
+
+
+def install_hooks(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> None:
+    request = request_base("install-git-hooks", "install", repo_root, request_suffix="install")
+    request["input"] = {
+        "approval": "INSTALL codex-bandit git hooks",
+        "installed_by": args.installed_by,
+    }
+    payload = run_json_script(plugin_root / "scripts" / "install-git-hooks", request)
+    plan = payload.get("result", {}).get("plan", {})
+    paths = plan.get("managed_paths") if isinstance(plan, dict) else None
+    count = len(paths) if isinstance(paths, list) else 0
+    print(f"Installed advisory git hooks into {repo_root} ({count} managed paths).")
+    print("Hooks exit 0 by default; set CODEX_BANDIT_HOOK_BLOCKING=1 to make them blocking.")
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Install Codex Bandit as a local Codex plugin.")
+    parser.add_argument("--with-agents", action="store_true", help="also install bundled enforced-mode Codex agents")
+    parser.add_argument("--with-hooks", action="store_true", help="also install bundled advisory git/session hooks")
+    parser.add_argument("--with-all", action="store_true", help="install plugin, enforced agents, and advisory hooks")
+    parser.add_argument("--plugin-root", default=str(default_plugin_root()), help="path to the Codex Bandit plugin root")
+    parser.add_argument("--repo-root", help="target repository root for optional hooks and installer envelopes")
+    parser.add_argument("--marketplace-root", help="local marketplace root to create")
+    parser.add_argument("--marketplace-name", default=DEFAULT_MARKETPLACE_NAME, help="local marketplace name")
+    parser.add_argument("--codex-cli", default=shutil.which("codex") or "codex", help="Codex CLI path or command")
+    parser.add_argument("--installed-by", default=os.environ.get("USER") or "unknown", help="installer identity recorded in manifests")
+    parser.add_argument("--agent-home", help="override installed-agent directory; default is $CODEX_HOME/agents or ~/.codex/agents")
+    parser.add_argument("--model", help="pin installed agents to a Codex model")
+    parser.add_argument("--model-provider", help="pin installed agents to a Codex model provider")
+    parser.add_argument("--model-reasoning-effort", help="pin installed agents to a reasoning effort")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv or sys.argv[1:])
+    args.with_agents = args.with_agents or args.with_all
+    args.with_hooks = args.with_hooks or args.with_all
+
+    try:
+        plugin_root = ensure_plugin_root(Path(args.plugin_root))
+        repo_root = Path(args.repo_root).expanduser().resolve() if args.repo_root else git_root(Path.cwd())
+        marketplace_root = (
+            Path(args.marketplace_root).expanduser().resolve()
+            if args.marketplace_root
+            else default_codex_home() / "local-marketplaces" / PLUGIN_NAME
+        )
+
+        print(f"Plugin root: {plugin_root}")
+        print(f"Marketplace: {args.marketplace_name} at {marketplace_root}")
+        write_marketplace(marketplace_root, plugin_root, args.marketplace_name)
+        run_command([args.codex_cli, "plugin", "marketplace", "add", str(marketplace_root)])
+        run_command([args.codex_cli, "plugin", "add", f"{PLUGIN_NAME}@{args.marketplace_name}"])
+        print("Installed Codex Bandit plugin. Start a new Codex session to load plugin capabilities.")
+
+        if args.with_agents:
+            install_agents(plugin_root, repo_root, args)
+        if args.with_hooks:
+            install_hooks(plugin_root, repo_root, args)
+        if not args.with_agents and not args.with_hooks:
+            print("Optional integrations skipped. Use --with-agents, --with-hooks, or --with-all to enable them.")
+        return 0
+    except InstallFailure as exc:
+        print(f"install-plugin: {exc}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
