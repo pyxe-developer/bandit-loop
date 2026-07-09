@@ -6,17 +6,26 @@ scripts, stage skills, references, and role prompt assets.
 
 ## Install
 
-From the repository root:
+For the user-facing GitHub install:
 
 ```sh
-pi install ./pi
+pi install git:github.com/pyxe-developer/bandit-loop
 ```
 
-For a project-local installation, use:
+From a local checkout, install the repository root:
 
 ```sh
-pi install -l ./pi
+pi install .
 ```
+
+For a project-local installation from a local checkout, use:
+
+```sh
+pi install -l .
+```
+
+Installing `./pi` directly is also supported for package development, but the
+repository root is the normal user install target.
 
 Start a new Pi session after installing so the skills and extension tools are
 discovered.

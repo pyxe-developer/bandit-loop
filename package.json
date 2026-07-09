@@ -1,0 +1,20 @@
+{
+  "name": "bandit-loop",
+  "version": "0.1.0",
+  "description": "Evidence-led, stage-gated delivery workflow for Pi.",
+  "keywords": ["pi-package"],
+  "license": "MIT",
+  "author": "Local developer",
+  "type": "module",
+  "bin": {
+    "bandit-loop": "./pi/bin/bandit-loop.mjs"
+  },
+  "pi": {
+    "extensions": ["./pi/extensions"],
+    "skills": ["./pi/skills"]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  }
+}
