@@ -10,7 +10,11 @@
 #   TRAYCER_<ROLE>_CLI             codex | claude | opencode      (default: codex)
 #   TRAYCER_<ROLE>_MODEL           model id; empty => the CLI's own default
 #                                   codex/claude: bare id (gpt-5.5, claude-opus-4-8)
-#                                   opencode:     provider/model (anthropic/claude-...)
+#                                   opencode:     <provider>/<model>; provider must be enabled in
+#                                                 opencode's config AND routed via Aperture — on this
+#                                                 deployment that's aperture/<model>, e.g.
+#                                                 aperture/claude-sonnet-5, aperture/z-ai/glm-5.2.
+#                                                 (The opencode branch rejects any other provider.)
 #   TRAYCER_<ROLE>_OPENCODE_AGENT  required only for LEVEL=RO on opencode
 #
 # Skill-passing convention: uniform inline (role .md + SKILL.md pasted into one prompt).
@@ -77,6 +81,34 @@ case "$CLI" in
     "$@" < "$PROMPT_FILE"
     ;;
   opencode)
+    # Aperture preflight. opencode is the only lane whose model calls route
+    # through the Aperture gateway, and that routing lives entirely in opencode's
+    # own config (enabled_providers + provider.<name>.options.baseURL) — nothing
+    # here sets it. Verify it before dispatch so a run can't (a) fail cryptically
+    # on a provider the config doesn't enable, or (b) silently bypass Aperture's
+    # policy/allowlist/budget enforcement by resolving to a non-Aperture provider.
+    # ponytail: Aperture is identified by baseURL host; add hosts if the gateway moves.
+    APERTURE_HOST=bandit.dunker-capella.ts.net
+    OC_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/opencode.json"
+    command -v jq >/dev/null 2>&1 || { echo "$ROLE_FILE: opencode lane needs 'jq' to verify Aperture routing" >&2; exit 69; }
+    [ -r "$OC_CONFIG" ] || { echo "$ROLE_FILE: opencode config not readable ($OC_CONFIG); cannot confirm Aperture routing" >&2; exit 78; }
+    jq empty "$OC_CONFIG" 2>/dev/null || { echo "$ROLE_FILE: opencode config is not valid JSON ($OC_CONFIG); cannot confirm Aperture routing" >&2; exit 78; }
+    # Effective model = the knob if set, else opencode's configured default.
+    OC_MODEL=$MODEL
+    [ -n "$OC_MODEL" ] || OC_MODEL=$(jq -r '.model // empty' "$OC_CONFIG")
+    [ -n "$OC_MODEL" ] || { echo "$ROLE_FILE: no opencode model — set TRAYCER_${ROLE}_MODEL=aperture/<model> or a default 'model' in $OC_CONFIG" >&2; exit 64; }
+    OC_PROVIDER=${OC_MODEL%%/*}   # provider segment = text before the first '/'
+    OC_BASEURL=$(jq -r --arg p "$OC_PROVIDER" \
+      'if (.enabled_providers // [] | index($p)) == null then "NOT_ENABLED" else (.provider[$p].options.baseURL // "") end' \
+      "$OC_CONFIG")
+    if [ "$OC_BASEURL" = NOT_ENABLED ]; then
+      echo "$ROLE_FILE: opencode model '$OC_MODEL' uses provider '$OC_PROVIDER', not in enabled_providers of $OC_CONFIG; use aperture/<model>" >&2; exit 78
+    fi
+    # Exact host match — substring-contains would accept lookalikes that merely
+    # embed the gateway FQDN (bandit.dunker-capella.ts.net.evil.example.com, or
+    # the host in a query string), so pull the host out of the URL and compare.
+    OC_HOST=${OC_BASEURL#*://}; OC_HOST=${OC_HOST%%/*}; OC_HOST=${OC_HOST%%:*}
+    [ "$OC_HOST" = "$APERTURE_HOST" ] || { echo "$ROLE_FILE: opencode provider '$OC_PROVIDER' baseURL '$OC_BASEURL' host is not the Aperture gateway ($APERTURE_HOST); refusing to run a lane that bypasses Aperture policy enforcement" >&2; exit 78; }
     set -- opencode run --dir "$REPO_ROOT"
     case "$LEVEL" in
       RO)
