@@ -44,6 +44,7 @@ INSTALL_APPROVAL = "INSTALL codex-bandit agents"
 UNINSTALL_APPROVAL = "UNINSTALL codex-bandit agents"
 VALIDATION_TTL_DAYS = 7
 MARKER = "# codex-bandit-managed: true"
+NICKNAME_ALLOWED = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -_")
 
 ROLE_ORDER = [
     "issue_planner",
@@ -139,6 +140,18 @@ def toml_array(values: list[str]) -> str:
     return "[" + ", ".join(json_string(value) for value in values) + "]"
 
 
+def agent_nickname(address: str) -> str:
+    nickname = address.replace(".", "-")
+    if not nickname or any(ch not in NICKNAME_ALLOWED for ch in nickname):
+        raise InstallAgentsFailure(
+            "blocked",
+            "E_INSTALL_AGENTS_INVALID_NICKNAME",
+            "Generated agent nickname is not compatible with Codex.",
+            blockers=[blocker("E_INSTALL_AGENTS_INVALID_NICKNAME", f"Generated agent nickname is invalid for address: {address}", stage="plan", owner_role="orchestrator", requires_human=True)],
+        )
+    return nickname
+
+
 def agent_home(request: dict[str, Any]) -> Path:
     raw = request.get("input", {}).get("agent_home")
     if isinstance(raw, str) and raw:
@@ -213,7 +226,7 @@ def render_agent_toml(role: str, config: dict[str, Any]) -> str:
     lines.extend(
         [
             f'sandbox_mode = {json_string(info["sandbox_mode"])}',
-            f"nickname_candidates = {toml_array([address])}",
+            f"nickname_candidates = {toml_array([agent_nickname(address)])}",
             f"developer_instructions = {json_string(developer_instructions(role))}",
             "",
         ]
@@ -378,6 +391,8 @@ def validate_agent_files(request: dict[str, Any], *, require_runtime: bool = Tru
         for key, value in required.items():
             if parsed.get(key) != value:
                 blockers.append(blocker("E_ENFORCED_AGENT_CONFIG_STALE", f"Installed agent {item['role']} has drifted {key}.", stage="plan", owner_role="orchestrator", requires_human=True))
+        if parsed.get("nickname_candidates") != [agent_nickname(item["address"])]:
+            blockers.append(blocker("E_ENFORCED_AGENT_CONFIG_STALE", f"Installed agent {item['role']} nickname_candidates drifted.", stage="plan", owner_role="orchestrator", requires_human=True))
         instructions = parsed.get("developer_instructions")
         if not isinstance(instructions, str) or "Codex Bandit enforced-mode role." not in instructions or f"Installed agent address: {item['address']}" not in instructions:
             blockers.append(blocker("E_ENFORCED_AGENT_CONFIG_STALE", f"Installed agent {item['role']} developer_instructions drifted.", stage="plan", owner_role="orchestrator", requires_human=True))

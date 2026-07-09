@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,8 @@ from bandit_runtime import (  # noqa: E402
     validate_verdict,
 )
 from delivery_governance import evaluate_land_deploy, prepare_pr_result  # noqa: E402
+
+NICKNAME_RE = re.compile(r"^[A-Za-z0-9 _-]+$")
 
 
 class FixtureError(AssertionError):
@@ -361,12 +364,24 @@ def install_valid_agents(tmp: Path, agent_home: Path) -> dict:
     req = install_agent_request(agent_home, "install", input_value={"approval": "INSTALL codex-bandit agents"})
     payload = assert_script(tmp, req, exit_code=0, status="pass", command="install-agents")
     assert_true(payload["result"].get("installed"), "install-agents installed flag missing")
+    assert_agent_nicknames_are_codex_compatible(agent_home)
     return payload
 
 
 def validate_agents(tmp: Path, agent_home: Path, *, input_value: dict | None = None, exit_code: int = 0, status: str = "pass", blocker_code: str | None = None) -> dict:
     req = install_agent_request(agent_home, "validate", input_value=input_value)
     return assert_script(tmp, req, exit_code=exit_code, status=status, command="install-agents", blocker_code=blocker_code)
+
+
+def assert_agent_nicknames_are_codex_compatible(agent_home: Path) -> None:
+    for path in sorted(agent_home.glob("codex-bandit.*.toml")):
+        raw = path.read_text(encoding="utf-8")
+        line = next((item for item in raw.splitlines() if item.startswith("nickname_candidates = ")), "")
+        assert_true(line, f"{path.name} missing nickname_candidates")
+        nicknames = json.loads(line.split("=", 1)[1].strip())
+        expected = [path.stem.replace(".", "-")]
+        assert_equal(nicknames, expected, f"{path.name} nickname candidates")
+        assert_true(all(NICKNAME_RE.fullmatch(nickname) for nickname in nicknames), f"{path.name} nickname contains unsupported characters")
 
 
 def assert_enforced_route_blocks_without_validation(tmp: Path, blocker_code: str = "E_ENFORCED_MODE_NOT_VALIDATED") -> None:
