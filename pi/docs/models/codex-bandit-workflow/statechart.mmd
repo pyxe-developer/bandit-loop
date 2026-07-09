@@ -1,0 +1,54 @@
+stateDiagram-v2
+  [*] --> Planned: EVT-001 create_work_item / GUARD-001
+
+  Planned --> Red: T-002 route_card_validated
+  Red --> Green: T-003 red_result [GUARD-002,011,017]
+  Red --> Red: T-004 red unexpected failure (blocked)
+
+  Green --> AdversarialReview: T-005 green_result [GUARD-003,011,017]
+  Green --> Red: T-006 forbidden test edit (reroute test_writer)
+  Green --> AdversarialReview: T-020 manual_patch [GUARD-015]
+
+  AdversarialReview --> PreparePR: T-007 verdict approve [GUARD-004]
+  AdversarialReview --> Green: T-008 changes_requested [GUARD-005,007]
+  AdversarialReview --> Red: T-011 reroute_to_test_writer
+  AdversarialReview --> AdversarialReview: T-009/T-010 cannot_judge / provider (blocked)
+  AdversarialReview --> AdversarialReview: T-023 budget exhausted (escalate)
+  AdversarialReview --> PreparePR: T-021 user_waiver [scoped]
+
+  PreparePR --> AwaitingHITLMerge: T-012 prepare_pr_result [GUARD-008,014]
+  AwaitingHITLMerge --> LandDeploy: T-013 hitl_merge_approval [GUARD-009,(016)]
+  LandDeploy --> Closeout: T-014 merged/deployed [GUARD-009,010,014]
+  LandDeploy --> LandDeploy: T-015 delivery_blocked (CI/health fail, no bypass)
+
+  PreparePR --> Closeout: T-016 defer_delivery
+  AwaitingHITLMerge --> Closeout: T-016 defer_delivery
+  LandDeploy --> Closeout: T-016 defer_delivery
+
+  Closeout --> [*]: T-017 closeout_result -> Complete
+
+  Planned --> ManualContinuation: T-019 exit_orchestration
+  Red --> ManualContinuation: T-019 exit_orchestration
+  Green --> ManualContinuation: T-019 exit_orchestration
+  AdversarialReview --> ManualContinuation: T-019 exit_orchestration
+  PreparePR --> ManualContinuation: T-019 exit_orchestration
+  AwaitingHITLMerge --> ManualContinuation: T-019 exit_orchestration
+
+  Planned --> Abandoned: T-018 exit_orchestration
+  Red --> Abandoned: T-018 exit_orchestration
+  Green --> Abandoned: T-018 exit_orchestration
+  AdversarialReview --> Abandoned: T-018 exit_orchestration
+
+  ManualContinuation --> [*]
+  Abandoned --> [*]
+
+  note right of AdversarialReview
+    Reducer (decision-table.md) derives
+    pass/changes_requested/cannot_judge/blocked.
+    Orchestrator only routes; it never verdicts.
+  end note
+  note right of AwaitingHITLMerge
+    Merge needs HITL approval bound to exact
+    PR + head SHA (INV-008). GUARD-016 (Q-002)
+    would also require reviewed==merged head.
+  end note

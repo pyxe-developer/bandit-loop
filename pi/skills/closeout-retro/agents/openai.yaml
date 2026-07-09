@@ -1,0 +1,5 @@
+interface:
+  display_name: Closeout Retro
+  short_description: Assisted closeout and retrospective surface.
+policy:
+  allow_implicit_invocation: false

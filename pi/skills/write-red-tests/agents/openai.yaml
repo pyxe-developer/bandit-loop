@@ -1,0 +1,5 @@
+interface:
+  display_name: Write RED Tests
+  short_description: Assisted RED-stage test writing surface.
+policy:
+  allow_implicit_invocation: false

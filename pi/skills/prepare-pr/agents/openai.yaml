@@ -1,0 +1,5 @@
+interface:
+  display_name: Prepare PR
+  short_description: Assisted PR-readiness surface.
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,444 @@
+{
+  "schema_version": "codex-bandit.fixture-manifest.v1",
+  "status": "materialized",
+  "canonical_repo_root": "/Users/matthewflebbe/projects/skill-development/bandit-skills",
+  "artifact_mirror": "/Users/matthewflebbe/.traycer/epics/09208b6b-8b79-43dc-9466-48e6fb815070/artifacts/codex-bandit-tech-plan/tickets/02-contract-schemas/materialized-handoff",
+  "schema_file": "contract-schemas.json",
+  "fixture_files": [
+    "route-cards.json",
+    "evidence-reducer.json",
+    "script-envelopes.json",
+    "stage-dispatch.json",
+    "verdict-delivery.json",
+    "enforced-compatibility.json",
+    "install-agents.json",
+    "hooks-mcp.json"
+  ],
+  "fixtures": [
+    {
+      "name": "fixture_02a_invalid_enforced_without_install_evidence",
+      "file": "route-cards.json",
+      "json_pointer": "/invalid/3"
+    },
+    {
+      "name": "fixture_02a_invalid_merge_approval_prebound",
+      "file": "route-cards.json",
+      "json_pointer": "/invalid/4"
+    },
+    {
+      "name": "fixture_02a_invalid_path_escape",
+      "file": "route-cards.json",
+      "json_pointer": "/invalid/5"
+    },
+    {
+      "name": "fixture_02a_invalid_pr_create_without_push_or_remote_branch",
+      "file": "route-cards.json",
+      "json_pointer": "/invalid/2"
+    },
+    {
+      "name": "fixture_02a_invalid_shell_command_string",
+      "file": "route-cards.json",
+      "json_pointer": "/invalid/0"
+    },
+    {
+      "name": "fixture_02a_invalid_stage_not_enabled",
+      "file": "route-cards.json",
+      "json_pointer": "/invalid/1"
+    },
+    {
+      "name": "fixture_02a_valid_assisted_delivery",
+      "file": "route-cards.json",
+      "json_pointer": "/valid/1"
+    },
+    {
+      "name": "fixture_02a_valid_minimal_local_no_delivery",
+      "file": "route-cards.json",
+      "json_pointer": "/valid/0"
+    },
+    {
+      "name": "fixture_02b_adversarial_changes_requested_then_repair",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/4"
+    },
+    {
+      "name": "fixture_02b_backdated_created_at_append_order",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/10"
+    },
+    {
+      "name": "fixture_02b_cannot_judge_missing_review_package",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/5"
+    },
+    {
+      "name": "fixture_02b_deferred_delivery_closeout",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/7"
+    },
+    {
+      "name": "fixture_02b_duplicate_conflict",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/9"
+    },
+    {
+      "name": "fixture_02b_green_stale_head",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/3"
+    },
+    {
+      "name": "fixture_02b_multi_commit_red_green_active",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/2"
+    },
+    {
+      "name": "fixture_02b_partial_jsonl_append",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/8"
+    },
+    {
+      "name": "fixture_02b_provider_timeout_cannot_judge",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/6"
+    },
+    {
+      "name": "fixture_02b_red_pass_active",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/0"
+    },
+    {
+      "name": "fixture_02b_red_wrong_failure_blocked",
+      "file": "evidence-reducer.json",
+      "json_pointer": "/fixtures/1"
+    },
+    {
+      "name": "fixture_02c_dispatch_cannot_judge",
+      "file": "stage-dispatch.json",
+      "json_pointer": "/fixtures/4"
+    },
+    {
+      "name": "fixture_02c_dispatch_manual_continuation",
+      "file": "stage-dispatch.json",
+      "json_pointer": "/fixtures/5"
+    },
+    {
+      "name": "fixture_02c_dispatch_repair_needed",
+      "file": "stage-dispatch.json",
+      "json_pointer": "/fixtures/3"
+    },
+    {
+      "name": "fixture_02c_dispatch_reroute_to_red",
+      "file": "stage-dispatch.json",
+      "json_pointer": "/fixtures/2"
+    },
+    {
+      "name": "fixture_02c_dispatch_structured_blocker",
+      "file": "stage-dispatch.json",
+      "json_pointer": "/fixtures/1"
+    },
+    {
+      "name": "fixture_02c_dispatch_success_green",
+      "file": "stage-dispatch.json",
+      "json_pointer": "/fixtures/0"
+    },
+    {
+      "name": "fixture_02c_script_drift_blocker",
+      "file": "script-envelopes.json",
+      "json_pointer": "/fixtures/3"
+    },
+    {
+      "name": "fixture_02c_script_invalid_input_bad_schema",
+      "file": "script-envelopes.json",
+      "json_pointer": "/fixtures/2"
+    },
+    {
+      "name": "fixture_02c_script_predicate_failure_forbidden_path",
+      "file": "script-envelopes.json",
+      "json_pointer": "/fixtures/1"
+    },
+    {
+      "name": "fixture_02c_script_runtime_failure_no_partial_append",
+      "file": "script-envelopes.json",
+      "json_pointer": "/fixtures/4"
+    },
+    {
+      "name": "fixture_02c_script_success_verify_green",
+      "file": "script-envelopes.json",
+      "json_pointer": "/fixtures/0"
+    },
+    {
+      "name": "fixture_02d_delivery_blocked_ci_failed",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/9"
+    },
+    {
+      "name": "fixture_02d_deploy_health_failed",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/10"
+    },
+    {
+      "name": "fixture_02d_hitl_merge_approval_valid",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/6"
+    },
+    {
+      "name": "fixture_02d_invalid_approve_without_rubrics",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/3"
+    },
+    {
+      "name": "fixture_02d_invalid_hitl_unreviewed_head_sha",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/8"
+    },
+    {
+      "name": "fixture_02d_invalid_hitl_wrong_head_sha",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/7"
+    },
+    {
+      "name": "fixture_02d_invalid_unknown_rubric_id",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/4"
+    },
+    {
+      "name": "fixture_02d_prepare_pr_deferred_valid",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/5"
+    },
+    {
+      "name": "fixture_02d_verdict_approve_valid",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/0"
+    },
+    {
+      "name": "fixture_02d_verdict_cannot_judge_missing_package",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/2"
+    },
+    {
+      "name": "fixture_02d_verdict_changes_requested_split_owners",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/1"
+    },
+    {
+      "name": "fixture_07a_prepared_pr_package_valid",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/11"
+    },
+    {
+      "name": "fixture_07a_deferred_delivery_terminal_valid",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/12"
+    },
+    {
+      "name": "fixture_07b_missing_hitl_approval_blocks_merge",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/13"
+    },
+    {
+      "name": "fixture_07b_stale_hitl_approval_remote_head_changed",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/14"
+    },
+    {
+      "name": "fixture_07b_missing_remote_pr_number_blocks_merge",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/15"
+    },
+    {
+      "name": "fixture_07b_missing_remote_head_blocks_merge",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/16"
+    },
+    {
+      "name": "fixture_07b_failing_ci_blocks_merge",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/17"
+    },
+    {
+      "name": "fixture_07b_unknown_ci_blocks_merge",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/18"
+    },
+    {
+      "name": "fixture_07b_remote_comments_untrusted_do_not_bypass_ci",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/19"
+    },
+    {
+      "name": "fixture_07b_missing_deploy_contract_blocks_deploy",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/20"
+    },
+    {
+      "name": "fixture_07b_deploy_authority_false_blocks_deploy",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/21"
+    },
+    {
+      "name": "fixture_07b_failed_deploy_blocks",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/22"
+    },
+    {
+      "name": "fixture_07b_unhealthy_post_deploy_blocks",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/23"
+    },
+    {
+      "name": "fixture_10_deploy_contract_incomplete_presence_only_known_limit",
+      "file": "verdict-delivery.json",
+      "json_pointer": "/fixtures/24"
+    },
+    {
+      "name": "fixture_02e_assisted_no_isolation_claim_valid",
+      "file": "enforced-compatibility.json",
+      "json_pointer": "/fixtures/0"
+    },
+    {
+      "name": "fixture_02e_enforced_actor_identity_mismatch",
+      "file": "enforced-compatibility.json",
+      "json_pointer": "/fixtures/6"
+    },
+    {
+      "name": "fixture_02e_enforced_agent_digest_drift",
+      "file": "enforced-compatibility.json",
+      "json_pointer": "/fixtures/4"
+    },
+    {
+      "name": "fixture_02e_enforced_missing_install_evidence",
+      "file": "enforced-compatibility.json",
+      "json_pointer": "/fixtures/3"
+    },
+    {
+      "name": "fixture_02e_enforced_unknown_role_address",
+      "file": "enforced-compatibility.json",
+      "json_pointer": "/fixtures/5"
+    },
+    {
+      "name": "fixture_02e_enforced_valid_agent_set",
+      "file": "enforced-compatibility.json",
+      "json_pointer": "/fixtures/2"
+    },
+    {
+      "name": "fixture_02e_invalid_assisted_claims_sandbox",
+      "file": "enforced-compatibility.json",
+      "json_pointer": "/fixtures/1"
+    },
+    {
+      "name": "fixture_08_install_agents_plan_paths_policies",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/0"
+    },
+    {
+      "name": "fixture_08_install_agents_requires_explicit_approval",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/1"
+    },
+    {
+      "name": "fixture_08_install_agents_installed_validates_enforced",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/2"
+    },
+    {
+      "name": "fixture_08_install_agents_missing_blocks_enforced",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/3"
+    },
+    {
+      "name": "fixture_08_install_agents_drift_blocks_enforced",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/4"
+    },
+    {
+      "name": "fixture_08_install_agents_non_invocable_blocks_enforced",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/5"
+    },
+    {
+      "name": "fixture_08_install_agents_uninstall_idempotent_keeps_unrelated",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/6"
+    },
+    {
+      "name": "fixture_08_enforced_expired_validation_evidence_blocks",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/7"
+    },
+    {
+      "name": "fixture_08_enforced_wrong_agent_set_blocks",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/8"
+    },
+    {
+      "name": "fixture_08_enforced_wrong_validation_evidence_id_blocks",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/9"
+    },
+    {
+      "name": "fixture_08_uninstall_manifest_tampered_outside_path_survives",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/10"
+    },
+    {
+      "name": "fixture_08_uninstall_drifted_managed_path_skipped",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/11"
+    },
+    {
+      "name": "fixture_08_uninstall_symlinked_managed_path_target_survives",
+      "file": "install-agents.json",
+      "json_pointer": "/fixtures/12"
+    },
+    {
+      "name": "fixture_09_git_hooks_plan_exact_paths",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/0"
+    },
+    {
+      "name": "fixture_09_git_hooks_install_requires_explicit_approval",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/1"
+    },
+    {
+      "name": "fixture_09_git_hooks_refuse_user_hook_conflict",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/2"
+    },
+    {
+      "name": "fixture_09_git_hooks_uninstall_idempotent_only_owned",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/3"
+    },
+    {
+      "name": "fixture_09_hooks_missing_state_advisory_nonblocking",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/4"
+    },
+    {
+      "name": "fixture_10_hooks_blocking_stage_advisory_default_opt_in_blocks",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/5"
+    },
+    {
+      "name": "fixture_10_git_hooks_uninstall_manifest_tamper_outside_path_survives",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/6"
+    },
+    {
+      "name": "fixture_10_git_hooks_uninstall_drifted_managed_path_skipped",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/7"
+    },
+    {
+      "name": "fixture_10_git_hooks_uninstall_symlinked_managed_path_target_survives",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/8"
+    },
+    {
+      "name": "fixture_09_mcp_verify_stage_parity",
+      "file": "hooks-mcp.json",
+      "json_pointer": "/fixtures/9"
+    }
+  ]
+}

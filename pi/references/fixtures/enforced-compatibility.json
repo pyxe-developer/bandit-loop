@@ -1,0 +1,1730 @@
+{
+  "schema_version": "codex-bandit.enforced-compatibility-fixtures.v1",
+  "fixtures": [
+    {
+      "name": "fixture_02e_assisted_no_isolation_claim_valid",
+      "route_card": {
+        "schema_version": "codex-bandit.route-card.v1",
+        "work_item_id": "cb-123",
+        "source": {
+          "request": "Fix invoice total rounding.",
+          "links": []
+        },
+        "repo": {
+          "root": ".",
+          "branch": "codex-bandit/cb-123",
+          "worktree": ".",
+          "created_at": "2026-07-09T12:00:00Z",
+          "updated_at": "2026-07-09T12:00:00Z"
+        },
+        "intent": {
+          "problem": "Invoice totals round inconsistently.",
+          "acceptance_criteria": [
+            "Totals round half-up to two decimals."
+          ],
+          "non_goals": [
+            "No pricing model rewrite."
+          ]
+        },
+        "stage_plan": {
+          "enabled_stages": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ],
+          "current_stage": "red",
+          "lifecycle_state": "active",
+          "repair_loop_budget": {
+            "max_total": 3,
+            "used_total": 0,
+            "per_stage": {
+              "green": 2
+            }
+          },
+          "escalation_policy": "block_and_ask_human"
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_diff": {
+            "base": "main",
+            "head": "codex-bandit/cb-123"
+          },
+          "dirty_state_policy": "block"
+        },
+        "role_boundaries": {
+          "path_semantics": {
+            "root": "repo",
+            "symlinks": "resolve_and_block_escape",
+            "unknown_paths": "block"
+          },
+          "protected_paths": [
+            ".git/**",
+            ".codex-bandit/work/*/evidence.jsonl"
+          ],
+          "roles": {
+            "test_writer": {
+              "can_edit": [
+                "tests/**"
+              ],
+              "must_not_edit": [
+                "src/**"
+              ],
+              "can_run_commands": [
+                "red"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "code_writer": {
+              "can_edit": [
+                "src/**"
+              ],
+              "must_not_edit": [
+                "tests/**"
+              ],
+              "can_run_commands": [
+                "green"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "adversarial_reviewer": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "verdict",
+                "blocker"
+              ]
+            },
+            "prepare_pr": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "land_deploy": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "command",
+                "approval",
+                "blocker"
+              ]
+            },
+            "closeout_retro": {
+              "can_edit": [
+                ".codex-bandit/work/*/reports/closeout.md"
+              ],
+              "must_not_edit": [
+                "src/**",
+                "tests/**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "note",
+                "transition"
+              ]
+            }
+          }
+        },
+        "commands": {
+          "red": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/red.md",
+            "success_exit_codes": [
+              1
+            ],
+            "expected_failure": {
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "must_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "must_not_include": [
+                "SyntaxError",
+                "Cannot find module"
+              ],
+              "baseline_command_evidence_id": "ev_baseline_001",
+              "baseline_not_required_reason": null
+            }
+          },
+          "green": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/green.md",
+            "success_exit_codes": [
+              0
+            ]
+          },
+          "review_package": {
+            "argv": [
+              "scripts/review-package"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 120,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/review-package.json",
+            "success_exit_codes": [
+              0
+            ]
+          }
+        },
+        "evidence": {
+          "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+          "required_prior_evidence_ids": [],
+          "report_paths": {
+            "red": ".codex-bandit/work/cb-123/reports/red.md",
+            "green": ".codex-bandit/work/cb-123/reports/green.md",
+            "adversarial": ".codex-bandit/work/cb-123/reports/adversarial.md"
+          },
+          "review_package": null
+        },
+        "capability_mode": {
+          "mode": "assisted",
+          "validation_evidence_ids": [],
+          "enforced_agent_set": null
+        },
+        "delivery_authority": {
+          "allow_branch_push": true,
+          "allow_pr_create": true,
+          "allow_pr_comment_triage": true,
+          "allow_merge": true,
+          "deploy_contract": null,
+          "hitl_merge_checkpoint": {
+            "pr_number": null,
+            "head_sha": null,
+            "approved_by": null,
+            "approval_evidence_id": null,
+            "approved_at": null
+          }
+        }
+      },
+      "expected": {
+        "valid": true,
+        "enforcement_claim": false
+      }
+    },
+    {
+      "name": "fixture_02e_invalid_assisted_claims_sandbox",
+      "surface": "README.md",
+      "claim": "Codex Bandit enforces sandbox isolation in assisted mode.",
+      "expected": {
+        "valid": false,
+        "blocker_or_warning": "release-blocking",
+        "code": "E_FALSE_ENFORCEMENT_CLAIM"
+      }
+    },
+    {
+      "name": "fixture_02e_enforced_valid_agent_set",
+      "route_card": {
+        "schema_version": "codex-bandit.route-card.v1",
+        "work_item_id": "cb-123",
+        "source": {
+          "request": "Fix invoice total rounding.",
+          "links": []
+        },
+        "repo": {
+          "root": ".",
+          "branch": "codex-bandit/cb-123",
+          "worktree": ".",
+          "created_at": "2026-07-09T12:00:00Z",
+          "updated_at": "2026-07-09T12:00:00Z"
+        },
+        "intent": {
+          "problem": "Invoice totals round inconsistently.",
+          "acceptance_criteria": [
+            "Totals round half-up to two decimals."
+          ],
+          "non_goals": [
+            "No pricing model rewrite."
+          ]
+        },
+        "stage_plan": {
+          "enabled_stages": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ],
+          "current_stage": "red",
+          "lifecycle_state": "active",
+          "repair_loop_budget": {
+            "max_total": 3,
+            "used_total": 0,
+            "per_stage": {
+              "green": 2
+            }
+          },
+          "escalation_policy": "block_and_ask_human"
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_diff": {
+            "base": "main",
+            "head": "codex-bandit/cb-123"
+          },
+          "dirty_state_policy": "block"
+        },
+        "role_boundaries": {
+          "path_semantics": {
+            "root": "repo",
+            "symlinks": "resolve_and_block_escape",
+            "unknown_paths": "block"
+          },
+          "protected_paths": [
+            ".git/**",
+            ".codex-bandit/work/*/evidence.jsonl"
+          ],
+          "roles": {
+            "test_writer": {
+              "can_edit": [
+                "tests/**"
+              ],
+              "must_not_edit": [
+                "src/**"
+              ],
+              "can_run_commands": [
+                "red"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "code_writer": {
+              "can_edit": [
+                "src/**"
+              ],
+              "must_not_edit": [
+                "tests/**"
+              ],
+              "can_run_commands": [
+                "green"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "adversarial_reviewer": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "verdict",
+                "blocker"
+              ]
+            },
+            "prepare_pr": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "land_deploy": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "command",
+                "approval",
+                "blocker"
+              ]
+            },
+            "closeout_retro": {
+              "can_edit": [
+                ".codex-bandit/work/*/reports/closeout.md"
+              ],
+              "must_not_edit": [
+                "src/**",
+                "tests/**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "note",
+                "transition"
+              ]
+            }
+          }
+        },
+        "commands": {
+          "red": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/red.md",
+            "success_exit_codes": [
+              1
+            ],
+            "expected_failure": {
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "must_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "must_not_include": [
+                "SyntaxError",
+                "Cannot find module"
+              ],
+              "baseline_command_evidence_id": "ev_baseline_001",
+              "baseline_not_required_reason": null
+            }
+          },
+          "green": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/green.md",
+            "success_exit_codes": [
+              0
+            ]
+          },
+          "review_package": {
+            "argv": [
+              "scripts/review-package"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 120,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/review-package.json",
+            "success_exit_codes": [
+              0
+            ]
+          }
+        },
+        "evidence": {
+          "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+          "required_prior_evidence_ids": [],
+          "report_paths": {
+            "red": ".codex-bandit/work/cb-123/reports/red.md",
+            "green": ".codex-bandit/work/cb-123/reports/green.md",
+            "adversarial": ".codex-bandit/work/cb-123/reports/adversarial.md"
+          },
+          "review_package": null
+        },
+        "capability_mode": {
+          "mode": "enforced",
+          "validation_evidence_ids": [
+            "ev_install_agents_001"
+          ],
+          "enforced_agent_set": "codex-bandit-agents-v1"
+        },
+        "delivery_authority": {
+          "allow_branch_push": true,
+          "allow_pr_create": true,
+          "allow_pr_comment_triage": true,
+          "allow_merge": true,
+          "deploy_contract": null,
+          "hitl_merge_checkpoint": {
+            "pr_number": null,
+            "head_sha": null,
+            "approved_by": null,
+            "approval_evidence_id": null,
+            "approved_at": null
+          }
+        }
+      },
+      "evidence_events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_install_agents_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:plan:attempt-1",
+          "record_type": "actor_identity",
+          "stage": "plan",
+          "actor": {
+            "role": "orchestrator",
+            "mode": "manual"
+          },
+          "recorded_by": {
+            "role": "human",
+            "mode": "manual",
+            "id": "matthew"
+          },
+          "identity_strength": "human_verified",
+          "claim": "installed_agents_validated",
+          "subject_scope": "agent_config",
+          "agent_config_subject": {
+            "agent_set_id": "codex-bandit-agents-v1",
+            "codex_cli_version": "0.137.0",
+            "config_paths": [
+              "~/.codex/agents/codex-bandit.adversarial-reviewer.toml"
+            ],
+            "config_digest": "sha256:agentset"
+          },
+          "status": "pass",
+          "actor_identity": {
+            "agent_set_id": "codex-bandit-agents-v1",
+            "installed_by": "matthew",
+            "validated_at": "2026-07-09T12:00:00Z",
+            "expires_at": "2026-07-16T12:00:00Z",
+            "agents": [
+              {
+                "role": "issue_planner",
+                "address": "codex-bandit.issue-planner",
+                "config_digest": "sha256:issue_planner",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "test_writer",
+                "address": "codex-bandit.test-writer",
+                "config_digest": "sha256:test_writer",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "code_writer",
+                "address": "codex-bandit.code-writer",
+                "config_digest": "sha256:code_writer",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "adversarial_reviewer",
+                "address": "codex-bandit.adversarial-reviewer",
+                "config_digest": "sha256:adversarial_reviewer",
+                "sandbox_mode": "read-only",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "prepare_pr",
+                "address": "codex-bandit.prepare-pr",
+                "config_digest": "sha256:prepare_pr",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "land_deploy",
+                "address": "codex-bandit.land-and-deploy",
+                "config_digest": "sha256:land_deploy",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "closeout_retro",
+                "address": "codex-bandit.closeout-retro",
+                "config_digest": "sha256:closeout_retro",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              }
+            ]
+          },
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:00:00Z"
+        }
+      ],
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "fixture_02e_enforced_missing_install_evidence",
+      "route_card": {
+        "schema_version": "codex-bandit.route-card.v1",
+        "work_item_id": "cb-123",
+        "source": {
+          "request": "Fix invoice total rounding.",
+          "links": []
+        },
+        "repo": {
+          "root": ".",
+          "branch": "codex-bandit/cb-123",
+          "worktree": ".",
+          "created_at": "2026-07-09T12:00:00Z",
+          "updated_at": "2026-07-09T12:00:00Z"
+        },
+        "intent": {
+          "problem": "Invoice totals round inconsistently.",
+          "acceptance_criteria": [
+            "Totals round half-up to two decimals."
+          ],
+          "non_goals": [
+            "No pricing model rewrite."
+          ]
+        },
+        "stage_plan": {
+          "enabled_stages": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ],
+          "current_stage": "red",
+          "lifecycle_state": "active",
+          "repair_loop_budget": {
+            "max_total": 3,
+            "used_total": 0,
+            "per_stage": {
+              "green": 2
+            }
+          },
+          "escalation_policy": "block_and_ask_human"
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_diff": {
+            "base": "main",
+            "head": "codex-bandit/cb-123"
+          },
+          "dirty_state_policy": "block"
+        },
+        "role_boundaries": {
+          "path_semantics": {
+            "root": "repo",
+            "symlinks": "resolve_and_block_escape",
+            "unknown_paths": "block"
+          },
+          "protected_paths": [
+            ".git/**",
+            ".codex-bandit/work/*/evidence.jsonl"
+          ],
+          "roles": {
+            "test_writer": {
+              "can_edit": [
+                "tests/**"
+              ],
+              "must_not_edit": [
+                "src/**"
+              ],
+              "can_run_commands": [
+                "red"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "code_writer": {
+              "can_edit": [
+                "src/**"
+              ],
+              "must_not_edit": [
+                "tests/**"
+              ],
+              "can_run_commands": [
+                "green"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "adversarial_reviewer": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "verdict",
+                "blocker"
+              ]
+            },
+            "prepare_pr": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "land_deploy": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "command",
+                "approval",
+                "blocker"
+              ]
+            },
+            "closeout_retro": {
+              "can_edit": [
+                ".codex-bandit/work/*/reports/closeout.md"
+              ],
+              "must_not_edit": [
+                "src/**",
+                "tests/**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "note",
+                "transition"
+              ]
+            }
+          }
+        },
+        "commands": {
+          "red": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/red.md",
+            "success_exit_codes": [
+              1
+            ],
+            "expected_failure": {
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "must_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "must_not_include": [
+                "SyntaxError",
+                "Cannot find module"
+              ],
+              "baseline_command_evidence_id": "ev_baseline_001",
+              "baseline_not_required_reason": null
+            }
+          },
+          "green": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/green.md",
+            "success_exit_codes": [
+              0
+            ]
+          },
+          "review_package": {
+            "argv": [
+              "scripts/review-package"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 120,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/review-package.json",
+            "success_exit_codes": [
+              0
+            ]
+          }
+        },
+        "evidence": {
+          "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+          "required_prior_evidence_ids": [],
+          "report_paths": {
+            "red": ".codex-bandit/work/cb-123/reports/red.md",
+            "green": ".codex-bandit/work/cb-123/reports/green.md",
+            "adversarial": ".codex-bandit/work/cb-123/reports/adversarial.md"
+          },
+          "review_package": null
+        },
+        "capability_mode": {
+          "mode": "enforced",
+          "validation_evidence_ids": [
+            "ev_install_agents_001"
+          ],
+          "enforced_agent_set": "codex-bandit-agents-v1"
+        },
+        "delivery_authority": {
+          "allow_branch_push": true,
+          "allow_pr_create": true,
+          "allow_pr_comment_triage": true,
+          "allow_merge": true,
+          "deploy_contract": null,
+          "hitl_merge_checkpoint": {
+            "pr_number": null,
+            "head_sha": null,
+            "approved_by": null,
+            "approval_evidence_id": null,
+            "approved_at": null
+          }
+        }
+      },
+      "evidence_events": [],
+      "expected": {
+        "valid": false,
+        "blocker_code": "E_ENFORCED_MODE_NOT_VALIDATED"
+      }
+    },
+    {
+      "name": "fixture_02e_enforced_agent_digest_drift",
+      "route_card": {
+        "schema_version": "codex-bandit.route-card.v1",
+        "work_item_id": "cb-123",
+        "source": {
+          "request": "Fix invoice total rounding.",
+          "links": []
+        },
+        "repo": {
+          "root": ".",
+          "branch": "codex-bandit/cb-123",
+          "worktree": ".",
+          "created_at": "2026-07-09T12:00:00Z",
+          "updated_at": "2026-07-09T12:00:00Z"
+        },
+        "intent": {
+          "problem": "Invoice totals round inconsistently.",
+          "acceptance_criteria": [
+            "Totals round half-up to two decimals."
+          ],
+          "non_goals": [
+            "No pricing model rewrite."
+          ]
+        },
+        "stage_plan": {
+          "enabled_stages": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ],
+          "current_stage": "red",
+          "lifecycle_state": "active",
+          "repair_loop_budget": {
+            "max_total": 3,
+            "used_total": 0,
+            "per_stage": {
+              "green": 2
+            }
+          },
+          "escalation_policy": "block_and_ask_human"
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_diff": {
+            "base": "main",
+            "head": "codex-bandit/cb-123"
+          },
+          "dirty_state_policy": "block"
+        },
+        "role_boundaries": {
+          "path_semantics": {
+            "root": "repo",
+            "symlinks": "resolve_and_block_escape",
+            "unknown_paths": "block"
+          },
+          "protected_paths": [
+            ".git/**",
+            ".codex-bandit/work/*/evidence.jsonl"
+          ],
+          "roles": {
+            "test_writer": {
+              "can_edit": [
+                "tests/**"
+              ],
+              "must_not_edit": [
+                "src/**"
+              ],
+              "can_run_commands": [
+                "red"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "code_writer": {
+              "can_edit": [
+                "src/**"
+              ],
+              "must_not_edit": [
+                "tests/**"
+              ],
+              "can_run_commands": [
+                "green"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "adversarial_reviewer": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "verdict",
+                "blocker"
+              ]
+            },
+            "prepare_pr": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "land_deploy": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "command",
+                "approval",
+                "blocker"
+              ]
+            },
+            "closeout_retro": {
+              "can_edit": [
+                ".codex-bandit/work/*/reports/closeout.md"
+              ],
+              "must_not_edit": [
+                "src/**",
+                "tests/**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "note",
+                "transition"
+              ]
+            }
+          }
+        },
+        "commands": {
+          "red": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/red.md",
+            "success_exit_codes": [
+              1
+            ],
+            "expected_failure": {
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "must_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "must_not_include": [
+                "SyntaxError",
+                "Cannot find module"
+              ],
+              "baseline_command_evidence_id": "ev_baseline_001",
+              "baseline_not_required_reason": null
+            }
+          },
+          "green": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/green.md",
+            "success_exit_codes": [
+              0
+            ]
+          },
+          "review_package": {
+            "argv": [
+              "scripts/review-package"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 120,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/review-package.json",
+            "success_exit_codes": [
+              0
+            ]
+          }
+        },
+        "evidence": {
+          "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+          "required_prior_evidence_ids": [],
+          "report_paths": {
+            "red": ".codex-bandit/work/cb-123/reports/red.md",
+            "green": ".codex-bandit/work/cb-123/reports/green.md",
+            "adversarial": ".codex-bandit/work/cb-123/reports/adversarial.md"
+          },
+          "review_package": null
+        },
+        "capability_mode": {
+          "mode": "enforced",
+          "validation_evidence_ids": [
+            "ev_install_agents_001"
+          ],
+          "enforced_agent_set": "codex-bandit-agents-v1"
+        },
+        "delivery_authority": {
+          "allow_branch_push": true,
+          "allow_pr_create": true,
+          "allow_pr_comment_triage": true,
+          "allow_merge": true,
+          "deploy_contract": null,
+          "hitl_merge_checkpoint": {
+            "pr_number": null,
+            "head_sha": null,
+            "approved_by": null,
+            "approval_evidence_id": null,
+            "approved_at": null
+          }
+        }
+      },
+      "evidence_events": [
+        {
+          "schema_version": "codex-bandit.evidence.v1",
+          "id": "ev_install_agents_001",
+          "work_item_id": "cb-123",
+          "stage_attempt_id": "cb-123:plan:attempt-1",
+          "record_type": "actor_identity",
+          "stage": "plan",
+          "actor": {
+            "role": "orchestrator",
+            "mode": "manual"
+          },
+          "recorded_by": {
+            "role": "human",
+            "mode": "manual",
+            "id": "matthew"
+          },
+          "identity_strength": "human_verified",
+          "claim": "installed_agents_validated",
+          "subject_scope": "agent_config",
+          "agent_config_subject": {
+            "agent_set_id": "codex-bandit-agents-v1",
+            "codex_cli_version": "0.137.0",
+            "config_paths": [
+              "~/.codex/agents/codex-bandit.adversarial-reviewer.toml"
+            ],
+            "config_digest": "sha256:agentset"
+          },
+          "status": "pass",
+          "actor_identity": {
+            "agent_set_id": "codex-bandit-agents-v1",
+            "installed_by": "matthew",
+            "validated_at": "2026-07-09T12:00:00Z",
+            "expires_at": "2026-07-16T12:00:00Z",
+            "agents": [
+              {
+                "role": "issue_planner",
+                "address": "codex-bandit.issue-planner",
+                "config_digest": "sha256:issue_planner",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "test_writer",
+                "address": "codex-bandit.test-writer",
+                "config_digest": "sha256:test_writer",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "code_writer",
+                "address": "codex-bandit.code-writer",
+                "config_digest": "sha256:code_writer",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "adversarial_reviewer",
+                "address": "codex-bandit.adversarial-reviewer",
+                "config_digest": "sha256:adversarial_reviewer",
+                "sandbox_mode": "read-only",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "prepare_pr",
+                "address": "codex-bandit.prepare-pr",
+                "config_digest": "sha256:prepare_pr",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "land_deploy",
+                "address": "codex-bandit.land-and-deploy",
+                "config_digest": "sha256:land_deploy",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              },
+              {
+                "role": "closeout_retro",
+                "address": "codex-bandit.closeout-retro",
+                "config_digest": "sha256:closeout_retro",
+                "sandbox_mode": "workspace-write",
+                "model_policy": "configured",
+                "tool_policy": "configured"
+              }
+            ]
+          },
+          "tool_version": "0.1.0",
+          "created_at": "2026-07-09T12:00:00Z"
+        }
+      ],
+      "observed_agent_config_digest": "sha256:changed",
+      "expected": {
+        "valid": false,
+        "blocker_code": "E_ENFORCED_AGENT_CONFIG_STALE"
+      }
+    },
+    {
+      "name": "fixture_02e_enforced_unknown_role_address",
+      "route_card": {
+        "schema_version": "codex-bandit.route-card.v1",
+        "work_item_id": "cb-123",
+        "source": {
+          "request": "Fix invoice total rounding.",
+          "links": []
+        },
+        "repo": {
+          "root": ".",
+          "branch": "codex-bandit/cb-123",
+          "worktree": ".",
+          "created_at": "2026-07-09T12:00:00Z",
+          "updated_at": "2026-07-09T12:00:00Z"
+        },
+        "intent": {
+          "problem": "Invoice totals round inconsistently.",
+          "acceptance_criteria": [
+            "Totals round half-up to two decimals."
+          ],
+          "non_goals": [
+            "No pricing model rewrite."
+          ]
+        },
+        "stage_plan": {
+          "enabled_stages": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ],
+          "current_stage": "red",
+          "lifecycle_state": "active",
+          "repair_loop_budget": {
+            "max_total": 3,
+            "used_total": 0,
+            "per_stage": {
+              "green": 2
+            }
+          },
+          "escalation_policy": "block_and_ask_human"
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_diff": {
+            "base": "main",
+            "head": "codex-bandit/cb-123"
+          },
+          "dirty_state_policy": "block"
+        },
+        "role_boundaries": {
+          "path_semantics": {
+            "root": "repo",
+            "symlinks": "resolve_and_block_escape",
+            "unknown_paths": "block"
+          },
+          "protected_paths": [
+            ".git/**",
+            ".codex-bandit/work/*/evidence.jsonl"
+          ],
+          "roles": {
+            "test_writer": {
+              "can_edit": [
+                "tests/**"
+              ],
+              "must_not_edit": [
+                "src/**"
+              ],
+              "can_run_commands": [
+                "red"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "code_writer": {
+              "can_edit": [
+                "src/**"
+              ],
+              "must_not_edit": [
+                "tests/**"
+              ],
+              "can_run_commands": [
+                "green"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "adversarial_reviewer": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "verdict",
+                "blocker"
+              ]
+            },
+            "prepare_pr": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "land_deploy": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "command",
+                "approval",
+                "blocker"
+              ]
+            },
+            "closeout_retro": {
+              "can_edit": [
+                ".codex-bandit/work/*/reports/closeout.md"
+              ],
+              "must_not_edit": [
+                "src/**",
+                "tests/**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "note",
+                "transition"
+              ]
+            }
+          }
+        },
+        "commands": {
+          "red": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/red.md",
+            "success_exit_codes": [
+              1
+            ],
+            "expected_failure": {
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "must_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "must_not_include": [
+                "SyntaxError",
+                "Cannot find module"
+              ],
+              "baseline_command_evidence_id": "ev_baseline_001",
+              "baseline_not_required_reason": null
+            }
+          },
+          "green": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/green.md",
+            "success_exit_codes": [
+              0
+            ]
+          },
+          "review_package": {
+            "argv": [
+              "scripts/review-package"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 120,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/review-package.json",
+            "success_exit_codes": [
+              0
+            ]
+          }
+        },
+        "evidence": {
+          "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+          "required_prior_evidence_ids": [],
+          "report_paths": {
+            "red": ".codex-bandit/work/cb-123/reports/red.md",
+            "green": ".codex-bandit/work/cb-123/reports/green.md",
+            "adversarial": ".codex-bandit/work/cb-123/reports/adversarial.md"
+          },
+          "review_package": null
+        },
+        "capability_mode": {
+          "mode": "enforced",
+          "validation_evidence_ids": [
+            "ev_install_agents_001"
+          ],
+          "enforced_agent_set": "codex-bandit-agents-v1"
+        },
+        "delivery_authority": {
+          "allow_branch_push": true,
+          "allow_pr_create": true,
+          "allow_pr_comment_triage": true,
+          "allow_merge": true,
+          "deploy_contract": null,
+          "hitl_merge_checkpoint": {
+            "pr_number": null,
+            "head_sha": null,
+            "approved_by": null,
+            "approval_evidence_id": null,
+            "approved_at": null
+          }
+        }
+      },
+      "requested_role": "land_deploy",
+      "observed_agent_address": null,
+      "expected": {
+        "valid": false,
+        "blocker_code": "E_ENFORCED_AGENT_MISSING"
+      }
+    },
+    {
+      "name": "fixture_02e_enforced_actor_identity_mismatch",
+      "route_card": {
+        "schema_version": "codex-bandit.route-card.v1",
+        "work_item_id": "cb-123",
+        "source": {
+          "request": "Fix invoice total rounding.",
+          "links": []
+        },
+        "repo": {
+          "root": ".",
+          "branch": "codex-bandit/cb-123",
+          "worktree": ".",
+          "created_at": "2026-07-09T12:00:00Z",
+          "updated_at": "2026-07-09T12:00:00Z"
+        },
+        "intent": {
+          "problem": "Invoice totals round inconsistently.",
+          "acceptance_criteria": [
+            "Totals round half-up to two decimals."
+          ],
+          "non_goals": [
+            "No pricing model rewrite."
+          ]
+        },
+        "stage_plan": {
+          "enabled_stages": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ],
+          "current_stage": "red",
+          "lifecycle_state": "active",
+          "repair_loop_budget": {
+            "max_total": 3,
+            "used_total": 0,
+            "per_stage": {
+              "green": 2
+            }
+          },
+          "escalation_policy": "block_and_ask_human"
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_diff": {
+            "base": "main",
+            "head": "codex-bandit/cb-123"
+          },
+          "dirty_state_policy": "block"
+        },
+        "role_boundaries": {
+          "path_semantics": {
+            "root": "repo",
+            "symlinks": "resolve_and_block_escape",
+            "unknown_paths": "block"
+          },
+          "protected_paths": [
+            ".git/**",
+            ".codex-bandit/work/*/evidence.jsonl"
+          ],
+          "roles": {
+            "test_writer": {
+              "can_edit": [
+                "tests/**"
+              ],
+              "must_not_edit": [
+                "src/**"
+              ],
+              "can_run_commands": [
+                "red"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "code_writer": {
+              "can_edit": [
+                "src/**"
+              ],
+              "must_not_edit": [
+                "tests/**"
+              ],
+              "can_run_commands": [
+                "green"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "adversarial_reviewer": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "verdict",
+                "blocker"
+              ]
+            },
+            "prepare_pr": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [
+                "review_package"
+              ],
+              "can_append_evidence": [
+                "command",
+                "blocker"
+              ]
+            },
+            "land_deploy": {
+              "can_edit": [],
+              "must_not_edit": [
+                "**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "command",
+                "approval",
+                "blocker"
+              ]
+            },
+            "closeout_retro": {
+              "can_edit": [
+                ".codex-bandit/work/*/reports/closeout.md"
+              ],
+              "must_not_edit": [
+                "src/**",
+                "tests/**"
+              ],
+              "can_run_commands": [],
+              "can_append_evidence": [
+                "note",
+                "transition"
+              ]
+            }
+          }
+        },
+        "commands": {
+          "red": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/red.md",
+            "success_exit_codes": [
+              1
+            ],
+            "expected_failure": {
+              "test_ids": [
+                "invoice rounds half-up"
+              ],
+              "failure_kind": "assertion",
+              "must_include": [
+                "Expected 10.13",
+                "Received 10.12"
+              ],
+              "must_not_include": [
+                "SyntaxError",
+                "Cannot find module"
+              ],
+              "baseline_command_evidence_id": "ev_baseline_001",
+              "baseline_not_required_reason": null
+            }
+          },
+          "green": {
+            "argv": [
+              "npm",
+              "test",
+              "--",
+              "tests/invoice.test.ts"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 600,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/green.md",
+            "success_exit_codes": [
+              0
+            ]
+          },
+          "review_package": {
+            "argv": [
+              "scripts/review-package"
+            ],
+            "cwd": ".",
+            "env": {},
+            "timeout_seconds": 120,
+            "required": true,
+            "report_path": ".codex-bandit/work/cb-123/reports/review-package.json",
+            "success_exit_codes": [
+              0
+            ]
+          }
+        },
+        "evidence": {
+          "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+          "required_prior_evidence_ids": [],
+          "report_paths": {
+            "red": ".codex-bandit/work/cb-123/reports/red.md",
+            "green": ".codex-bandit/work/cb-123/reports/green.md",
+            "adversarial": ".codex-bandit/work/cb-123/reports/adversarial.md"
+          },
+          "review_package": null
+        },
+        "capability_mode": {
+          "mode": "enforced",
+          "validation_evidence_ids": [
+            "ev_install_agents_001"
+          ],
+          "enforced_agent_set": "codex-bandit-agents-v1"
+        },
+        "delivery_authority": {
+          "allow_branch_push": true,
+          "allow_pr_create": true,
+          "allow_pr_comment_triage": true,
+          "allow_merge": true,
+          "deploy_contract": null,
+          "hitl_merge_checkpoint": {
+            "pr_number": null,
+            "head_sha": null,
+            "approved_by": null,
+            "approval_evidence_id": null,
+            "approved_at": null
+          }
+        }
+      },
+      "role_output_actor": {
+        "role": "code_writer",
+        "mode": "enforced",
+        "agent_address": "codex-bandit.test-writer",
+        "agent_set_id": "codex-bandit-agents-v1",
+        "config_digest": "sha256:test_writer",
+        "session_id": "codex-session-123"
+      },
+      "expected": {
+        "valid": false,
+        "blocker_code": "E_ENFORCED_IDENTITY_INVALID"
+      }
+    }
+  ]
+}

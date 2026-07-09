@@ -1,0 +1,5 @@
+interface:
+  display_name: Implement GREEN
+  short_description: Assisted GREEN-stage implementation surface.
+policy:
+  allow_implicit_invocation: false
