@@ -16,6 +16,9 @@
       "agents": ["./pi/agents"]
     }
   },
+  "pi-subagents": {
+    "agents": ["./pi/agents"]
+  },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",
     "typebox": "*"
