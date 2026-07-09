@@ -1,0 +1,5 @@
+interface:
+  display_name: Codex Bandit Orchestrate
+  short_description: Assisted workflow coordination for a Codex Bandit work item.
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,741 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "codex-bandit.contract-schemas.v1",
+  "source_contracts": [
+    "02a-route-card",
+    "02b-evidence-reducer",
+    "02c-script-stage-dispatch",
+    "02d-verdict-rubric-delivery",
+    "02e-enforced-compatibility",
+    "adversarial-amendment"
+  ],
+  "exit_codes": {
+    "0": {
+      "meaning": "operation succeeded and predicates passed",
+      "allowed_status": [
+        "pass"
+      ],
+      "ok": true
+    },
+    "1": {
+      "meaning": "predicate failure or workflow blocker",
+      "allowed_status": [
+        "blocked",
+        "fail",
+        "changes_requested",
+        "cannot_judge",
+        "deferred"
+      ],
+      "ok": false
+    },
+    "2": {
+      "meaning": "invalid input or schema violation",
+      "allowed_status": [
+        "invalid_input"
+      ],
+      "ok": false
+    },
+    "3": {
+      "meaning": "subject drift, dirty state, or missing prerequisite evidence",
+      "allowed_status": [
+        "stale",
+        "blocked"
+      ],
+      "ok": false
+    },
+    "4": {
+      "meaning": "runtime/tool failure",
+      "allowed_status": [
+        "runtime_error"
+      ],
+      "ok": false
+    }
+  },
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "required": [
+        "role",
+        "mode"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "orchestrator",
+            "issue_planner",
+            "test_writer",
+            "code_writer",
+            "adversarial_reviewer",
+            "prepare_pr",
+            "land_deploy",
+            "closeout_retro",
+            "human"
+          ]
+        },
+        "mode": {
+          "enum": [
+            "assisted",
+            "manual",
+            "enforced"
+          ]
+        },
+        "id": {},
+        "agent_address": {},
+        "agent_set_id": {},
+        "config_digest": {},
+        "session_id": {}
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "required": [
+        "code",
+        "severity",
+        "message",
+        "stage",
+        "owner_role",
+        "retryable",
+        "requires_human"
+      ],
+      "properties": {
+        "code": {},
+        "severity": {
+          "enum": [
+            "warning",
+            "blocker",
+            "fatal"
+          ]
+        },
+        "message": {},
+        "stage": {
+          "enum": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ]
+        },
+        "owner_role": {
+          "enum": [
+            "orchestrator",
+            "issue_planner",
+            "test_writer",
+            "code_writer",
+            "adversarial_reviewer",
+            "prepare_pr",
+            "land_deploy",
+            "closeout_retro",
+            "human"
+          ]
+        },
+        "evidence_ids": {},
+        "field_path": {},
+        "suggested_next_stage": {
+          "enum": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "requires_human": {
+          "type": "boolean"
+        }
+      }
+    },
+    "stage": {
+      "enum": [
+        "plan",
+        "red",
+        "green",
+        "adversarial",
+        "prepare_pr",
+        "hitl_merge_checkpoint",
+        "land_deploy",
+        "closeout"
+      ]
+    },
+    "role": {
+      "enum": [
+        "orchestrator",
+        "issue_planner",
+        "test_writer",
+        "code_writer",
+        "adversarial_reviewer",
+        "prepare_pr",
+        "land_deploy",
+        "closeout_retro",
+        "human"
+      ]
+    }
+  },
+  "schemas": {
+    "codex-bandit.route-card.v1": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "work_item_id",
+        "source",
+        "repo",
+        "intent",
+        "stage_plan",
+        "subject",
+        "role_boundaries",
+        "commands",
+        "evidence",
+        "capability_mode",
+        "delivery_authority"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "codex-bandit.route-card.v1"
+        },
+        "work_item_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,80}$"
+        },
+        "stage_plan": {
+          "type": "object",
+          "required": [
+            "enabled_stages",
+            "current_stage",
+            "lifecycle_state",
+            "repair_loop_budget",
+            "escalation_policy"
+          ]
+        },
+        "capability_mode": {
+          "type": "object",
+          "required": [
+            "mode",
+            "validation_evidence_ids",
+            "enforced_agent_set"
+          ]
+        }
+      }
+    },
+    "codex-bandit.evidence.v1": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "id",
+        "work_item_id",
+        "stage_attempt_id",
+        "record_type",
+        "stage",
+        "actor",
+        "recorded_by",
+        "identity_strength",
+        "claim",
+        "subject_scope",
+        "status",
+        "tool_version",
+        "created_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "codex-bandit.evidence.v1"
+        },
+        "record_type": {
+          "enum": [
+            "command",
+            "verdict",
+            "transition",
+            "supersession",
+            "blocker",
+            "waiver",
+            "approval",
+            "route_update",
+            "actor_identity",
+            "note"
+          ]
+        },
+        "stage": {
+          "enum": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ]
+        },
+        "actor": {
+          "type": "object",
+          "required": [
+            "role",
+            "mode"
+          ],
+          "properties": {
+            "role": {
+              "enum": [
+                "orchestrator",
+                "issue_planner",
+                "test_writer",
+                "code_writer",
+                "adversarial_reviewer",
+                "prepare_pr",
+                "land_deploy",
+                "closeout_retro",
+                "human"
+              ]
+            },
+            "mode": {
+              "enum": [
+                "assisted",
+                "manual",
+                "enforced"
+              ]
+            },
+            "id": {},
+            "agent_address": {},
+            "agent_set_id": {},
+            "config_digest": {},
+            "session_id": {}
+          }
+        },
+        "recorded_by": {
+          "type": "object",
+          "required": [
+            "role",
+            "mode"
+          ],
+          "properties": {
+            "role": {
+              "enum": [
+                "orchestrator",
+                "issue_planner",
+                "test_writer",
+                "code_writer",
+                "adversarial_reviewer",
+                "prepare_pr",
+                "land_deploy",
+                "closeout_retro",
+                "human"
+              ]
+            },
+            "mode": {
+              "enum": [
+                "assisted",
+                "manual",
+                "enforced"
+              ]
+            },
+            "id": {},
+            "agent_address": {},
+            "agent_set_id": {},
+            "config_digest": {},
+            "session_id": {}
+          }
+        },
+        "identity_strength": {
+          "enum": [
+            "declared",
+            "human_verified",
+            "validated_agent",
+            "system"
+          ]
+        },
+        "subject_scope": {
+          "enum": [
+            "product",
+            "agent_config",
+            "audit"
+          ]
+        }
+      }
+    },
+    "codex-bandit.script-request.v1": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "command",
+        "operation",
+        "repo_root",
+        "work_item_id",
+        "route_card_path",
+        "input",
+        "caller",
+        "request_id"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "codex-bandit.script-request.v1"
+        },
+        "command": {
+          "enum": [
+            "route-card",
+            "evidence-ledger",
+            "verify-stage",
+            "review-package",
+            "install-agents",
+            "install-git-hooks"
+          ]
+        },
+        "caller": {
+          "type": "object",
+          "required": [
+            "role",
+            "mode"
+          ],
+          "properties": {
+            "role": {
+              "enum": [
+                "orchestrator",
+                "issue_planner",
+                "test_writer",
+                "code_writer",
+                "adversarial_reviewer",
+                "prepare_pr",
+                "land_deploy",
+                "closeout_retro",
+                "human"
+              ]
+            },
+            "mode": {
+              "enum": [
+                "assisted",
+                "manual",
+                "enforced"
+              ]
+            },
+            "id": {},
+            "agent_address": {},
+            "agent_set_id": {},
+            "config_digest": {},
+            "session_id": {}
+          }
+        }
+      }
+    },
+    "codex-bandit.script-response.v1": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "request_id",
+        "ok",
+        "status",
+        "work_item_id",
+        "stage",
+        "evidence_ids",
+        "result",
+        "blockers",
+        "errors",
+        "warnings"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "codex-bandit.script-response.v1"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "blocked",
+            "invalid_input",
+            "stale",
+            "changes_requested",
+            "cannot_judge",
+            "deferred",
+            "runtime_error"
+          ]
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "severity",
+              "message",
+              "stage",
+              "owner_role",
+              "retryable",
+              "requires_human"
+            ],
+            "properties": {
+              "code": {},
+              "severity": {
+                "enum": [
+                  "warning",
+                  "blocker",
+                  "fatal"
+                ]
+              },
+              "message": {},
+              "stage": {
+                "enum": [
+                  "plan",
+                  "red",
+                  "green",
+                  "adversarial",
+                  "prepare_pr",
+                  "hitl_merge_checkpoint",
+                  "land_deploy",
+                  "closeout"
+                ]
+              },
+              "owner_role": {
+                "enum": [
+                  "orchestrator",
+                  "issue_planner",
+                  "test_writer",
+                  "code_writer",
+                  "adversarial_reviewer",
+                  "prepare_pr",
+                  "land_deploy",
+                  "closeout_retro",
+                  "human"
+                ]
+              },
+              "evidence_ids": {},
+              "field_path": {},
+              "suggested_next_stage": {
+                "enum": [
+                  "plan",
+                  "red",
+                  "green",
+                  "adversarial",
+                  "prepare_pr",
+                  "hitl_merge_checkpoint",
+                  "land_deploy",
+                  "closeout"
+                ]
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "requires_human": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "codex-bandit.stage-dispatch-request.v1": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "dispatch_id",
+        "work_item_id",
+        "stage",
+        "target_role",
+        "capability_mode",
+        "route_card",
+        "reducer_status",
+        "required_inputs",
+        "role_contract",
+        "subject"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "codex-bandit.stage-dispatch-request.v1"
+        },
+        "stage": {
+          "enum": [
+            "plan",
+            "red",
+            "green",
+            "adversarial",
+            "prepare_pr",
+            "hitl_merge_checkpoint",
+            "land_deploy",
+            "closeout"
+          ]
+        },
+        "target_role": {
+          "enum": [
+            "orchestrator",
+            "issue_planner",
+            "test_writer",
+            "code_writer",
+            "adversarial_reviewer",
+            "prepare_pr",
+            "land_deploy",
+            "closeout_retro",
+            "human"
+          ]
+        }
+      }
+    },
+    "codex-bandit.role-output.v1": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "dispatch_id",
+        "work_item_id",
+        "stage",
+        "actor",
+        "outcome",
+        "summary",
+        "proposed_evidence",
+        "route_card_patch",
+        "blockers",
+        "reroute"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "codex-bandit.role-output.v1"
+        },
+        "outcome": {
+          "enum": [
+            "success",
+            "blocked",
+            "repair_needed",
+            "reroute",
+            "cannot_judge",
+            "manual_continuation"
+          ]
+        },
+        "actor": {
+          "type": "object",
+          "required": [
+            "role",
+            "mode"
+          ],
+          "properties": {
+            "role": {
+              "enum": [
+                "orchestrator",
+                "issue_planner",
+                "test_writer",
+                "code_writer",
+                "adversarial_reviewer",
+                "prepare_pr",
+                "land_deploy",
+                "closeout_retro",
+                "human"
+              ]
+            },
+            "mode": {
+              "enum": [
+                "assisted",
+                "manual",
+                "enforced"
+              ]
+            },
+            "id": {},
+            "agent_address": {},
+            "agent_set_id": {},
+            "config_digest": {},
+            "session_id": {}
+          }
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "severity",
+              "message",
+              "stage",
+              "owner_role",
+              "retryable",
+              "requires_human"
+            ],
+            "properties": {
+              "code": {},
+              "severity": {
+                "enum": [
+                  "warning",
+                  "blocker",
+                  "fatal"
+                ]
+              },
+              "message": {},
+              "stage": {
+                "enum": [
+                  "plan",
+                  "red",
+                  "green",
+                  "adversarial",
+                  "prepare_pr",
+                  "hitl_merge_checkpoint",
+                  "land_deploy",
+                  "closeout"
+                ]
+              },
+              "owner_role": {
+                "enum": [
+                  "orchestrator",
+                  "issue_planner",
+                  "test_writer",
+                  "code_writer",
+                  "adversarial_reviewer",
+                  "prepare_pr",
+                  "land_deploy",
+                  "closeout_retro",
+                  "human"
+                ]
+              },
+              "evidence_ids": {},
+              "field_path": {},
+              "suggested_next_stage": {
+                "enum": [
+                  "plan",
+                  "red",
+                  "green",
+                  "adversarial",
+                  "prepare_pr",
+                  "hitl_merge_checkpoint",
+                  "land_deploy",
+                  "closeout"
+                ]
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "requires_human": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "codex-bandit.verdict.v1": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "verdict",
+        "rubric_ids",
+        "reviewed_evidence_ids",
+        "review_package_digest",
+        "subject",
+        "findings",
+        "test_surface_findings",
+        "cannot_judge_reason"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "codex-bandit.verdict.v1"
+        },
+        "verdict": {
+          "enum": [
+            "approve",
+            "changes_requested",
+            "cannot_judge"
+          ]
+        }
+      }
+    }
+  }
+}
