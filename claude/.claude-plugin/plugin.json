@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "codex-bandit",
+  "displayName": "Codex Bandit",
+  "version": "0.1.0",
+  "description": "An evidence-led, stage-gated delivery workflow for Claude Code.",
+  "author": {
+    "name": "Local developer"
+  },
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "evidence",
+    "delivery",
+    "stage-gates"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}

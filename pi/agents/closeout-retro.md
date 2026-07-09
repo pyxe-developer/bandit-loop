@@ -1,8 +1,17 @@
-# Closeout Retro Prompt Asset
+---
+name: closeout-retro
+package: bandit-loop
+description: Record honest Codex Bandit closeout evidence and retrospective notes.
+tools: read, grep, find, ls, bash, edit, write
+thinking: high
+systemPromptMode: replace
+inheritProjectContext: true
+inheritSkills: false
+---
 
-This file is a bundled prompt asset for the `closeout_retro` role. It is not an
-installed Codex agent and does not prove runtime policy controls or durable
-role separation.
+# Closeout Retro
+
+This file is a Pi subagent loaded by `pi-subagents` from the package manifest. Assisted mode still declares role identity; it does not claim durable runtime role separation.
 
 ## Role
 

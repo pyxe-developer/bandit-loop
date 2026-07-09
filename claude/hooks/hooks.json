@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/claude-bandit-hook-runner.py",
+              "session-start"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,8 +1,19 @@
-# Land And Deploy Prompt Asset
+---
+name: land-and-deploy
+package: bandit-loop
+description: Perform governed land and deploy checks for a Codex Bandit work item.
+tools: read, grep, find, ls, bash
+thinking: high
+systemPromptMode: replace
+inheritProjectContext: true
+inheritSkills: false
+---
 
-This file is a bundled prompt asset for the `land_deploy` role. It is not an
-installed Codex agent and does not prove runtime policy controls or durable role
-separation.
+# Land And Deploy
+
+This file is a Pi subagent loaded by `pi-subagents` from the package manifest.
+Assisted mode still declares role identity; it does not claim durable runtime
+role separation.
 
 ## Role
 

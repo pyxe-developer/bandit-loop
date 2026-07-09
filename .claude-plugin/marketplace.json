@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "bandit-loop",
+  "owner": {
+    "name": "Local developer"
+  },
+  "metadata": {
+    "description": "Evidence-led delivery workflow plugins for coding agents."
+  },
+  "plugins": [
+    {
+      "name": "codex-bandit",
+      "source": "./claude",
+      "description": "An evidence-led, stage-gated delivery workflow for Claude Code.",
+      "version": "0.1.0",
+      "category": "Developer Tools",
+      "tags": ["workflow", "evidence", "delivery"]
+    }
+  ]
+}

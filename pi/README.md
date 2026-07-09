@@ -9,8 +9,11 @@ scripts, stage skills, references, and role prompt assets.
 For the user-facing GitHub install:
 
 ```sh
-pi install git:github.com/pyxe-developer/bandit-loop
+pi install git:github.com/pyxe-developer/bandit-loop@codex/bandit-loop-pi-plugin
 ```
+
+The `@codex/bandit-loop-pi-plugin` ref is required until this Pi port is merged
+into `main`. Once merged, the `@...` suffix can be omitted.
 
 From a local checkout, install the repository root:
 
@@ -29,6 +32,19 @@ repository root is the normal user install target.
 
 Start a new Pi session after installing so the skills and extension tools are
 discovered.
+
+Role agents are exposed through `pi-subagents`, which Pi does not install
+automatically as part of this package:
+
+```sh
+pi install npm:pi-subagents
+```
+
+After restarting Pi, use `/subagents-doctor` to verify discovery. The package
+agents are named `bandit-loop.issue-planner`,
+`bandit-loop.test-writer`, `bandit-loop.code-writer`,
+`bandit-loop.adversarial-reviewer`, `bandit-loop.prepare-pr`,
+`bandit-loop.land-and-deploy`, and `bandit-loop.closeout-retro`.
 
 ## Use
 

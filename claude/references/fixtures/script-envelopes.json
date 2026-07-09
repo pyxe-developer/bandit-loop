@@ -1,0 +1,244 @@
+{
+  "schema_version": "codex-bandit.script-envelope-fixtures.v1",
+  "exit_code_semantics": {
+    "0": {
+      "meaning": "operation succeeded and predicates passed",
+      "allowed_status": [
+        "pass"
+      ],
+      "ok": true
+    },
+    "1": {
+      "meaning": "predicate failure or workflow blocker",
+      "allowed_status": [
+        "blocked",
+        "fail",
+        "changes_requested",
+        "cannot_judge",
+        "deferred"
+      ],
+      "ok": false
+    },
+    "2": {
+      "meaning": "invalid input or schema violation",
+      "allowed_status": [
+        "invalid_input"
+      ],
+      "ok": false
+    },
+    "3": {
+      "meaning": "subject drift, dirty state, or missing prerequisite evidence",
+      "allowed_status": [
+        "stale",
+        "blocked"
+      ],
+      "ok": false
+    },
+    "4": {
+      "meaning": "runtime/tool failure",
+      "allowed_status": [
+        "runtime_error"
+      ],
+      "ok": false
+    }
+  },
+  "fixtures": [
+    {
+      "name": "fixture_02c_script_success_verify_green",
+      "process_exit_code": 0,
+      "request": {
+        "schema_version": "codex-bandit.script-request.v1",
+        "command": "verify-stage",
+        "operation": "verify",
+        "repo_root": ".",
+        "work_item_id": "cb-123",
+        "route_card_path": ".codex-bandit/work/cb-123/route-card.json",
+        "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+        "stage": "green",
+        "input": {},
+        "caller": {
+          "role": "orchestrator",
+          "mode": "assisted"
+        },
+        "request_id": "req_02c_001"
+      },
+      "response": {
+        "schema_version": "codex-bandit.script-response.v1",
+        "request_id": "req_02c_001",
+        "ok": true,
+        "status": "pass",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "evidence_ids": [
+          "ev_green_001"
+        ],
+        "result": {},
+        "blockers": [],
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "fixture_02c_script_predicate_failure_forbidden_path",
+      "process_exit_code": 1,
+      "request": {
+        "schema_version": "codex-bandit.script-request.v1",
+        "command": "verify-stage",
+        "operation": "verify",
+        "repo_root": ".",
+        "work_item_id": "cb-123",
+        "route_card_path": ".codex-bandit/work/cb-123/route-card.json",
+        "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+        "stage": "green",
+        "input": {},
+        "caller": {
+          "role": "orchestrator",
+          "mode": "assisted"
+        },
+        "request_id": "req_02c_001"
+      },
+      "response": {
+        "schema_version": "codex-bandit.script-response.v1",
+        "request_id": "req_02c_001",
+        "ok": false,
+        "status": "blocked",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "evidence_ids": [],
+        "result": {},
+        "blockers": [
+          {
+            "code": "E_FORBIDDEN_PATH_CHANGED",
+            "severity": "blocker",
+            "message": "E_FORBIDDEN_PATH_CHANGED",
+            "stage": "green",
+            "owner_role": "code_writer",
+            "retryable": true,
+            "requires_human": false
+          }
+        ],
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "fixture_02c_script_invalid_input_bad_schema",
+      "process_exit_code": 2,
+      "request": {
+        "schema_version": "codex-bandit.script-request.v1",
+        "command": "verify-stage",
+        "operation": "verify",
+        "repo_root": ".",
+        "work_item_id": "cb-123",
+        "route_card_path": ".codex-bandit/work/cb-123/route-card.json",
+        "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+        "stage": "green",
+        "input": {},
+        "caller": {
+          "role": "orchestrator",
+          "mode": "assisted"
+        },
+        "request_id": "req_02c_001"
+      },
+      "response": {
+        "schema_version": "codex-bandit.script-response.v1",
+        "request_id": "req_02c_001",
+        "ok": false,
+        "status": "invalid_input",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "evidence_ids": [],
+        "result": {},
+        "blockers": [],
+        "errors": [
+          {
+            "code": "E_SCHEMA_INVALID",
+            "field_path": "/commands/green/argv"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "fixture_02c_script_drift_blocker",
+      "process_exit_code": 3,
+      "request": {
+        "schema_version": "codex-bandit.script-request.v1",
+        "command": "verify-stage",
+        "operation": "verify",
+        "repo_root": ".",
+        "work_item_id": "cb-123",
+        "route_card_path": ".codex-bandit/work/cb-123/route-card.json",
+        "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+        "stage": "green",
+        "input": {},
+        "caller": {
+          "role": "orchestrator",
+          "mode": "assisted"
+        },
+        "request_id": "req_02c_001"
+      },
+      "response": {
+        "schema_version": "codex-bandit.script-response.v1",
+        "request_id": "req_02c_001",
+        "ok": false,
+        "status": "stale",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "evidence_ids": [],
+        "result": {},
+        "blockers": [
+          {
+            "code": "E_STALE_SUBJECT",
+            "severity": "blocker",
+            "message": "E_STALE_SUBJECT",
+            "stage": "green",
+            "owner_role": "code_writer",
+            "retryable": true,
+            "requires_human": false
+          }
+        ],
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "fixture_02c_script_runtime_failure_no_partial_append",
+      "process_exit_code": 4,
+      "request": {
+        "schema_version": "codex-bandit.script-request.v1",
+        "command": "verify-stage",
+        "operation": "verify",
+        "repo_root": ".",
+        "work_item_id": "cb-123",
+        "route_card_path": ".codex-bandit/work/cb-123/route-card.json",
+        "ledger_path": ".codex-bandit/work/cb-123/evidence.jsonl",
+        "stage": "green",
+        "input": {},
+        "caller": {
+          "role": "orchestrator",
+          "mode": "assisted"
+        },
+        "request_id": "req_02c_001"
+      },
+      "response": {
+        "schema_version": "codex-bandit.script-response.v1",
+        "request_id": "req_02c_001",
+        "ok": false,
+        "status": "runtime_error",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "evidence_ids": [],
+        "result": {},
+        "blockers": [],
+        "errors": [
+          {
+            "code": "E_RUNTIME_FAILURE",
+            "message": "Tool failed before append."
+          }
+        ],
+        "warnings": []
+      }
+    }
+  ]
+}

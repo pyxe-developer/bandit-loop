@@ -11,7 +11,13 @@
   },
   "pi": {
     "extensions": ["./pi/extensions"],
-    "skills": ["./pi/skills"]
+    "skills": ["./pi/skills"],
+    "subagents": {
+      "agents": ["./pi/agents"]
+    }
+  },
+  "pi-subagents": {
+    "agents": ["./pi/agents"]
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",

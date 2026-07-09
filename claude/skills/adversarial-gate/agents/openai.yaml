@@ -1,0 +1,5 @@
+interface:
+  display_name: Adversarial Gate
+  short_description: Assisted adversarial review surface.
+policy:
+  allow_implicit_invocation: false

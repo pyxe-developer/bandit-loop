@@ -1,8 +1,17 @@
-# Issue Planner Prompt Asset
+---
+name: issue-planner
+package: bandit-loop
+description: Plan one Codex Bandit work item and produce a route-card-ready plan or blocker.
+tools: read, grep, find, ls, bash
+thinking: high
+systemPromptMode: replace
+inheritProjectContext: true
+inheritSkills: false
+---
 
-This file is a bundled prompt asset for the `issue_planner` role. It is not an
-installed Codex agent and does not prove runtime policy controls or durable
-role separation.
+# Issue Planner
+
+This file is a Pi subagent loaded by `pi-subagents` from the package manifest. Assisted mode still declares role identity; it does not claim durable runtime role separation.
 
 ## Role
 

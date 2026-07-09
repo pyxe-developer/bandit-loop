@@ -1,8 +1,19 @@
-# Adversarial Reviewer Prompt Asset
+---
+name: adversarial-reviewer
+package: bandit-loop
+description: Perform a read-only adversarial review of the active Codex Bandit package and evidence.
+tools: read, grep, find, ls, bash
+thinking: high
+systemPromptMode: replace
+inheritProjectContext: true
+inheritSkills: false
+---
 
-This file is a bundled prompt asset for the `adversarial_reviewer` role. It is
-not an installed Codex agent and does not prove runtime policy controls or
-durable role separation.
+# Adversarial Reviewer
+
+This file is a Pi subagent loaded by `pi-subagents` from the package manifest.
+Assisted mode still declares role identity; it does not claim durable runtime
+role separation.
 
 ## Role
 

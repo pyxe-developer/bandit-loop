@@ -1,0 +1,461 @@
+{
+  "schema_version": "codex-bandit.stage-dispatch-fixtures.v1",
+  "fixtures": [
+    {
+      "name": "fixture_02c_dispatch_success_green",
+      "request": {
+        "schema_version": "codex-bandit.stage-dispatch-request.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "target_role": "code_writer",
+        "capability_mode": "assisted",
+        "route_card": {
+          "path": ".codex-bandit/work/cb-123/route-card.json",
+          "digest": "sha256:route"
+        },
+        "reducer_status": {
+          "red": "pass",
+          "green": "not_started"
+        },
+        "required_inputs": {
+          "evidence_ids": [
+            "ev_red_001"
+          ],
+          "report_paths": [
+            ".codex-bandit/work/cb-123/reports/red.md"
+          ],
+          "commands": [
+            "green"
+          ]
+        },
+        "role_contract": {
+          "can_edit": [
+            "src/**"
+          ],
+          "must_not_edit": [
+            "tests/**"
+          ],
+          "can_append_evidence": [
+            "command",
+            "blocker"
+          ],
+          "must_return": [
+            "role_output"
+          ]
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_package_digest": null
+        }
+      },
+      "role_output": {
+        "schema_version": "codex-bandit.role-output.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "actor": {
+          "role": "code_writer",
+          "mode": "assisted"
+        },
+        "outcome": "success",
+        "summary": "success",
+        "proposed_evidence": [
+          {
+            "record_type": "command",
+            "actor": {
+              "role": "code_writer",
+              "mode": "assisted"
+            },
+            "claim": "green_passes_required_commands",
+            "status": "pass",
+            "command": {
+              "name": "green",
+              "exit_code": 0
+            },
+            "subject_source": "append_script_actual_repo_head",
+            "artifact_path": ".codex-bandit/work/cb-123/reports/green.md"
+          }
+        ],
+        "route_card_patch": null,
+        "blockers": [],
+        "reroute": null
+      }
+    },
+    {
+      "name": "fixture_02c_dispatch_structured_blocker",
+      "request": {
+        "schema_version": "codex-bandit.stage-dispatch-request.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "target_role": "code_writer",
+        "capability_mode": "assisted",
+        "route_card": {
+          "path": ".codex-bandit/work/cb-123/route-card.json",
+          "digest": "sha256:route"
+        },
+        "reducer_status": {
+          "red": "pass",
+          "green": "not_started"
+        },
+        "required_inputs": {
+          "evidence_ids": [
+            "ev_red_001"
+          ],
+          "report_paths": [
+            ".codex-bandit/work/cb-123/reports/red.md"
+          ],
+          "commands": [
+            "green"
+          ]
+        },
+        "role_contract": {
+          "can_edit": [
+            "src/**"
+          ],
+          "must_not_edit": [
+            "tests/**"
+          ],
+          "can_append_evidence": [
+            "command",
+            "blocker"
+          ],
+          "must_return": [
+            "role_output"
+          ]
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_package_digest": null
+        }
+      },
+      "role_output": {
+        "schema_version": "codex-bandit.role-output.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "actor": {
+          "role": "code_writer",
+          "mode": "assisted"
+        },
+        "outcome": "blocked",
+        "summary": "blocked",
+        "proposed_evidence": [],
+        "route_card_patch": null,
+        "blockers": [
+          {
+            "code": "E_FORBIDDEN_PATH_CHANGED",
+            "severity": "blocker",
+            "message": "Forbidden test path changed.",
+            "stage": "green",
+            "owner_role": "code_writer",
+            "retryable": true,
+            "requires_human": false
+          }
+        ],
+        "reroute": null
+      }
+    },
+    {
+      "name": "fixture_02c_dispatch_reroute_to_red",
+      "request": {
+        "schema_version": "codex-bandit.stage-dispatch-request.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "target_role": "code_writer",
+        "capability_mode": "assisted",
+        "route_card": {
+          "path": ".codex-bandit/work/cb-123/route-card.json",
+          "digest": "sha256:route"
+        },
+        "reducer_status": {
+          "red": "pass",
+          "green": "not_started"
+        },
+        "required_inputs": {
+          "evidence_ids": [
+            "ev_red_001"
+          ],
+          "report_paths": [
+            ".codex-bandit/work/cb-123/reports/red.md"
+          ],
+          "commands": [
+            "green"
+          ]
+        },
+        "role_contract": {
+          "can_edit": [
+            "src/**"
+          ],
+          "must_not_edit": [
+            "tests/**"
+          ],
+          "can_append_evidence": [
+            "command",
+            "blocker"
+          ],
+          "must_return": [
+            "role_output"
+          ]
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_package_digest": null
+        }
+      },
+      "role_output": {
+        "schema_version": "codex-bandit.role-output.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "actor": {
+          "role": "code_writer",
+          "mode": "assisted"
+        },
+        "outcome": "reroute",
+        "summary": "reroute",
+        "proposed_evidence": [],
+        "route_card_patch": null,
+        "blockers": [],
+        "reroute": {
+          "target_stage": "red",
+          "reason": "Required RED evidence is missing.",
+          "owner_role": "test_writer"
+        }
+      }
+    },
+    {
+      "name": "fixture_02c_dispatch_repair_needed",
+      "request": {
+        "schema_version": "codex-bandit.stage-dispatch-request.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "target_role": "code_writer",
+        "capability_mode": "assisted",
+        "route_card": {
+          "path": ".codex-bandit/work/cb-123/route-card.json",
+          "digest": "sha256:route"
+        },
+        "reducer_status": {
+          "red": "pass",
+          "green": "not_started"
+        },
+        "required_inputs": {
+          "evidence_ids": [
+            "ev_red_001"
+          ],
+          "report_paths": [
+            ".codex-bandit/work/cb-123/reports/red.md"
+          ],
+          "commands": [
+            "green"
+          ]
+        },
+        "role_contract": {
+          "can_edit": [
+            "src/**"
+          ],
+          "must_not_edit": [
+            "tests/**"
+          ],
+          "can_append_evidence": [
+            "command",
+            "blocker"
+          ],
+          "must_return": [
+            "role_output"
+          ]
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_package_digest": null
+        }
+      },
+      "role_output": {
+        "schema_version": "codex-bandit.role-output.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "adversarial",
+        "actor": {
+          "role": "adversarial_reviewer",
+          "mode": "assisted"
+        },
+        "outcome": "repair_needed",
+        "summary": "repair_needed",
+        "proposed_evidence": [],
+        "route_card_patch": null,
+        "blockers": [],
+        "reroute": {
+          "target_stage": "green",
+          "reason": "Implementation finding requires repair.",
+          "owner_role": "code_writer"
+        }
+      }
+    },
+    {
+      "name": "fixture_02c_dispatch_cannot_judge",
+      "request": {
+        "schema_version": "codex-bandit.stage-dispatch-request.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "target_role": "code_writer",
+        "capability_mode": "assisted",
+        "route_card": {
+          "path": ".codex-bandit/work/cb-123/route-card.json",
+          "digest": "sha256:route"
+        },
+        "reducer_status": {
+          "red": "pass",
+          "green": "not_started"
+        },
+        "required_inputs": {
+          "evidence_ids": [
+            "ev_red_001"
+          ],
+          "report_paths": [
+            ".codex-bandit/work/cb-123/reports/red.md"
+          ],
+          "commands": [
+            "green"
+          ]
+        },
+        "role_contract": {
+          "can_edit": [
+            "src/**"
+          ],
+          "must_not_edit": [
+            "tests/**"
+          ],
+          "can_append_evidence": [
+            "command",
+            "blocker"
+          ],
+          "must_return": [
+            "role_output"
+          ]
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_package_digest": null
+        }
+      },
+      "role_output": {
+        "schema_version": "codex-bandit.role-output.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "adversarial",
+        "actor": {
+          "role": "adversarial_reviewer",
+          "mode": "assisted"
+        },
+        "outcome": "cannot_judge",
+        "summary": "cannot_judge",
+        "proposed_evidence": [],
+        "route_card_patch": null,
+        "blockers": [
+          {
+            "code": "E_REVIEW_PACKAGE_MISSING",
+            "severity": "blocker",
+            "message": "Review package missing.",
+            "stage": "adversarial",
+            "owner_role": "orchestrator",
+            "retryable": true,
+            "requires_human": false
+          }
+        ],
+        "reroute": null
+      }
+    },
+    {
+      "name": "fixture_02c_dispatch_manual_continuation",
+      "request": {
+        "schema_version": "codex-bandit.stage-dispatch-request.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "target_role": "code_writer",
+        "capability_mode": "assisted",
+        "route_card": {
+          "path": ".codex-bandit/work/cb-123/route-card.json",
+          "digest": "sha256:route"
+        },
+        "reducer_status": {
+          "red": "pass",
+          "green": "not_started"
+        },
+        "required_inputs": {
+          "evidence_ids": [
+            "ev_red_001"
+          ],
+          "report_paths": [
+            ".codex-bandit/work/cb-123/reports/red.md"
+          ],
+          "commands": [
+            "green"
+          ]
+        },
+        "role_contract": {
+          "can_edit": [
+            "src/**"
+          ],
+          "must_not_edit": [
+            "tests/**"
+          ],
+          "can_append_evidence": [
+            "command",
+            "blocker"
+          ],
+          "must_return": [
+            "role_output"
+          ]
+        },
+        "subject": {
+          "base_ref": "main",
+          "head_ref": "codex-bandit/cb-123",
+          "expected_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "review_package_digest": null
+        }
+      },
+      "role_output": {
+        "schema_version": "codex-bandit.role-output.v1",
+        "dispatch_id": "disp_green_001",
+        "work_item_id": "cb-123",
+        "stage": "green",
+        "actor": {
+          "role": "code_writer",
+          "mode": "assisted"
+        },
+        "outcome": "manual_continuation",
+        "summary": "manual_continuation",
+        "proposed_evidence": [],
+        "route_card_patch": null,
+        "blockers": [
+          {
+            "code": "E_HUMAN_DECISION_REQUIRED",
+            "severity": "blocker",
+            "message": "Human decision required.",
+            "stage": "green",
+            "owner_role": "human",
+            "retryable": false,
+            "requires_human": true
+          }
+        ],
+        "reroute": null
+      }
+    }
+  ]
+}

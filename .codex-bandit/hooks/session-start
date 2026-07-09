@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# codex-bandit-managed: true
+PLUGIN_ROOT="${CODEX_BANDIT_PLUGIN_ROOT:-/Users/matthewflebbe/projects/bandit-loop/codex}"
+RUNNER="$PLUGIN_ROOT/hooks/codex-bandit-hook-runner.py"
+if [ ! -x "$RUNNER" ]; then
+  printf '%s\n' "codex-bandit hook advisory skip: runner not found: $RUNNER" >&2
+  exit 0
+fi
+"$RUNNER" session-start "$@"
+status=$?
+if [ "${CODEX_BANDIT_HOOK_BLOCKING:-0}" = "1" ]; then
+  exit "$status"
+fi
+exit 0
