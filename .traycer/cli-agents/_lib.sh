@@ -17,12 +17,23 @@
 #                                                 (The opencode branch rejects any other provider.)
 #   TRAYCER_<ROLE>_OPENCODE_AGENT  required only for LEVEL=RO on opencode
 #
+# These knobs can live in a `.env` beside this lib (auto-sourced below; values
+# in .env win over the ambient environment). See .env for the full per-role list.
+#
 # Skill-passing convention: uniform inline (role .md + SKILL.md pasted into one prompt).
 # See HANDOFF-populate-cli-agents.md for the full contract.
 set -eu
 
 LIB_DIR=$(cd "$(dirname "$0")" && pwd)
 REPO_ROOT=$(cd "$LIB_DIR/../.." && pwd)
+
+# Optional .env beside this lib supplies the per-role knobs. Plain KEY=value
+# lines; `set -a` exports them so the eval reads below see them. Values here win
+# over the ambient environment. ponytail: sourced means executed, but it sits in
+# the same dir as these wrappers — same trust as the wrappers, no new boundary.
+ENV_FILE="$LIB_DIR/.env"
+[ -f "$ENV_FILE" ] && { set -a; . "$ENV_FILE"; set +a; }
+
 ROLE_MD="$REPO_ROOT/codex/agents/$ROLE_FILE.md"
 SKILL_MD="$REPO_ROOT/codex/skills/$SKILL/SKILL.md"
 
