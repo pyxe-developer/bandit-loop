@@ -28,8 +28,11 @@ host-specific enforcement surface has been explicitly installed and validated.
 Install the repository as a user-level Pi package:
 
 ```sh
-pi install git:github.com/pyxe-developer/bandit-loop
+pi install git:github.com/pyxe-developer/bandit-loop@codex/bandit-loop-pi-plugin
 ```
+
+The `@codex/bandit-loop-pi-plugin` ref is required until this Pi port is merged
+into `main`. Once merged, the `@...` suffix can be omitted.
 
 For a local checkout:
 
@@ -51,7 +54,9 @@ tools. Install `pi-subagents` separately to expose the package's role agents:
 pi install npm:pi-subagents
 ```
 
-See [`pi/README.md`](pi/README.md) for the complete Pi surface.
+Restart Pi after both installs. Verify that `/subagents-doctor` lists the
+`bandit-loop.*` agents. See [`pi/README.md`](pi/README.md) for the complete Pi
+surface.
 
 ## Install for Codex
 
