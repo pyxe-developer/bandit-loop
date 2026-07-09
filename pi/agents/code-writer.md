@@ -1,8 +1,17 @@
-# Code Writer Prompt Asset
+---
+name: code-writer
+package: bandit-loop
+description: Implement GREEN-stage production changes within Codex Bandit role boundaries.
+tools: read, grep, find, ls, bash, edit, write
+thinking: high
+systemPromptMode: replace
+inheritProjectContext: true
+inheritSkills: false
+---
 
-This file is a bundled prompt asset for the `code_writer` role. It is not an
-installed Codex agent and does not prove runtime policy controls or durable
-role separation.
+# Code Writer
+
+This file is a Pi subagent loaded by `pi-subagents` from the package manifest. Assisted mode still declares role identity; it does not claim durable runtime role separation.
 
 ## Role
 

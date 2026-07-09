@@ -45,7 +45,13 @@ pi install -l /path/to/bandit-loop
 
 Start a new Pi session after installation. The package provides native stage
 skills, the `bandit-loop` executable, and in-session `codex_bandit_*` bridge
-tools. See [`pi/README.md`](pi/README.md) for the complete Pi surface.
+tools. Install `pi-subagents` separately to expose the package's role agents:
+
+```sh
+pi install npm:pi-subagents
+```
+
+See [`pi/README.md`](pi/README.md) for the complete Pi surface.
 
 ## Install for Codex
 

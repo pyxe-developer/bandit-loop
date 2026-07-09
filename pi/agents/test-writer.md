@@ -1,8 +1,17 @@
-# Test Writer Prompt Asset
+---
+name: test-writer
+package: bandit-loop
+description: Write RED tests and produce evidence for a Codex Bandit work item.
+tools: read, grep, find, ls, bash, edit, write
+thinking: high
+systemPromptMode: replace
+inheritProjectContext: true
+inheritSkills: false
+---
 
-This file is a bundled prompt asset for the `test_writer` role. It is not an
-installed Codex agent and does not prove runtime policy controls or durable
-role separation.
+# Test Writer
+
+This file is a Pi subagent loaded by `pi-subagents` from the package manifest. Assisted mode still declares role identity; it does not claim durable runtime role separation.
 
 ## Role
 

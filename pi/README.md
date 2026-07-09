@@ -30,6 +30,19 @@ repository root is the normal user install target.
 Start a new Pi session after installing so the skills and extension tools are
 discovered.
 
+Role agents are exposed through `pi-subagents`, which Pi does not install
+automatically as part of this package:
+
+```sh
+pi install npm:pi-subagents
+```
+
+After restarting Pi, use `/subagents` or ask Pi to show the available
+subagents. The package agents are named `bandit-loop.issue-planner`,
+`bandit-loop.test-writer`, `bandit-loop.code-writer`,
+`bandit-loop.adversarial-reviewer`, `bandit-loop.prepare-pr`,
+`bandit-loop.land-and-deploy`, and `bandit-loop.closeout-retro`.
+
 ## Use
 
 The stage skills are available through Pi's native skill system. The extension
