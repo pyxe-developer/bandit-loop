@@ -1,0 +1,27 @@
+# Presentation metadata only. This file is a prompt asset for future skills and
+# does not install Codex agents or prove enforced role separation.
+interface:
+  display_name: Codex Bandit Role Prompt Assets
+  summary: Prompt asset index for assisted Codex Bandit roles.
+roles:
+  - role_id: issue_planner
+    public_skill: plan-work-item
+    installed_agent_address_reserved_for_ticket_08: codex-bandit.issue-planner
+  - role_id: test_writer
+    public_skill: write-red-tests
+    installed_agent_address_reserved_for_ticket_08: codex-bandit.test-writer
+  - role_id: code_writer
+    public_skill: implement-green
+    installed_agent_address_reserved_for_ticket_08: codex-bandit.code-writer
+  - role_id: adversarial_reviewer
+    public_skill: adversarial-gate
+    installed_agent_address_reserved_for_ticket_08: codex-bandit.adversarial-reviewer
+  - role_id: prepare_pr
+    public_skill: prepare-pr
+    installed_agent_address_reserved_for_ticket_08: codex-bandit.prepare-pr
+  - role_id: land_deploy
+    public_skill: land-and-deploy
+    installed_agent_address_reserved_for_ticket_08: codex-bandit.land-and-deploy
+  - role_id: closeout_retro
+    public_skill: closeout-retro
+    installed_agent_address_reserved_for_ticket_08: codex-bandit.closeout-retro

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "codex-bandit": {
+      "cwd": ".",
+      "command": "python3",
+      "args": [
+        "./mcp/codex_bandit_mcp.py"
+      ]
+    }
+  }
+}

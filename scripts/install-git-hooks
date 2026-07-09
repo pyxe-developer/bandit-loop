@@ -1,0 +1,338 @@
+#!/usr/bin/env python3
+"""Opt-in installer for Codex Bandit advisory hooks."""
+
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from bandit_runtime import (  # noqa: E402
+    ScriptFailure,
+    blocker,
+    digest_bytes,
+    digest_json,
+    emit,
+    error,
+    now_iso,
+    response,
+    validate_request,
+)
+
+
+HOOK_SET_ID = "codex-bandit-hooks-v1"
+MANIFEST_NAME = ".codex-bandit-hooks-manifest.json"
+INSTALL_APPROVAL = "INSTALL codex-bandit git hooks"
+UNINSTALL_APPROVAL = "UNINSTALL codex-bandit git hooks"
+MARKER = "# codex-bandit-managed: true"
+HOOK_NAMES = ["pre-commit", "pre-push", "session-start"]
+
+
+class InstallHooksFailure(Exception):
+    def __init__(
+        self,
+        status: str,
+        code: str,
+        message: str,
+        *,
+        blockers: list[dict[str, Any]] | None = None,
+        errors: list[dict[str, Any]] | None = None,
+        warnings: list[dict[str, Any]] | None = None,
+        result: dict[str, Any] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.status = status
+        self.code = code
+        self.message = message
+        self.blockers = blockers or []
+        self.errors = errors or []
+        self.warnings = warnings or []
+        self.result = result or {}
+
+
+def plugin_root() -> Path:
+    return Path(__file__).resolve().parents[1]
+
+
+def repo_root_from_request(request: dict[str, Any]) -> Path:
+    return Path(request["repo_root"]).expanduser().resolve()
+
+
+def git_hooks_dir(root: Path) -> Path:
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--git-path", "hooks"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+        )
+    except OSError as exc:
+        raise InstallHooksFailure(
+            "blocked",
+            "E_GIT_HOOKS_UNAVAILABLE",
+            "Git is not available to locate the hooks directory.",
+            blockers=[blocker("E_GIT_HOOKS_UNAVAILABLE", f"Git is not available: {exc}", stage="plan", owner_role="human", requires_human=True)],
+        ) from exc
+    if proc.returncode != 0 or not proc.stdout.strip():
+        raise InstallHooksFailure(
+            "blocked",
+            "E_GIT_HOOKS_UNAVAILABLE",
+            "Target repo does not expose a git hooks directory.",
+            blockers=[blocker("E_GIT_HOOKS_UNAVAILABLE", proc.stderr.strip() or "Target repo does not expose a git hooks directory.", stage="plan", owner_role="human", requires_human=True)],
+        )
+    raw = Path(proc.stdout.strip())
+    if not raw.is_absolute():
+        raw = root / raw
+    return raw.resolve()
+
+
+def manifest_path(root: Path, hooks_dir: Path) -> Path:
+    return hooks_dir / MANIFEST_NAME
+
+
+def session_hook_path(root: Path) -> Path:
+    return root / ".codex-bandit" / "hooks" / "session-start"
+
+
+def hook_path(root: Path, hooks_dir: Path, name: str) -> Path:
+    if name == "session-start":
+        return session_hook_path(root)
+    return hooks_dir / name
+
+
+def render_hook(name: str) -> str:
+    template = (plugin_root() / "hooks" / name).read_text(encoding="utf-8")
+    return template.replace("__CODEX_BANDIT_PLUGIN_ROOT__", str(plugin_root()))
+
+
+def expected_hook_files(root: Path, hooks_dir: Path) -> list[dict[str, Any]]:
+    files: list[dict[str, Any]] = []
+    for name in HOOK_NAMES:
+        content = render_hook(name)
+        files.append(
+            {
+                "name": name,
+                "path": str(hook_path(root, hooks_dir, name)),
+                "content": content,
+                "digest": digest_bytes(content.encode("utf-8")),
+                "mode": "executable",
+                "blocking_default": False,
+            }
+        )
+    return files
+
+
+def plan_payload(request: dict[str, Any], manifest: dict[str, Any] | None = None) -> dict[str, Any]:
+    root = repo_root_from_request(request)
+    hooks_dir = git_hooks_dir(root)
+    files = expected_hook_files(root, hooks_dir)
+    plan = {
+        "hook_set_id": HOOK_SET_ID,
+        "repo_root": str(root),
+        "git_hooks_dir": str(hooks_dir),
+        "manifest_path": str(manifest_path(root, hooks_dir)),
+        "managed_paths": [item["path"] for item in files],
+        "files": [
+            {
+                "name": item["name"],
+                "path": item["path"],
+                "digest": item["digest"],
+                "mode": item["mode"],
+                "blocking_default": item["blocking_default"],
+            }
+            for item in files
+        ],
+        "approval_required": INSTALL_APPROVAL,
+        "uninstall_approval_required": UNINSTALL_APPROVAL,
+        "note": "Hooks are advisory by default. They exit 0 unless CODEX_BANDIT_HOOK_BLOCKING=1 is set by explicit user opt-in.",
+    }
+    if manifest:
+        plan["installed_at"] = manifest.get("installed_at")
+    plan["plan_digest"] = digest_json({key: value for key, value in plan.items() if key != "plan_digest"})
+    return plan
+
+
+def read_manifest(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise InstallHooksFailure(
+            "blocked",
+            "E_INSTALL_GIT_HOOKS_MANIFEST_STALE",
+            "Hook manifest is not valid JSON.",
+            blockers=[blocker("E_INSTALL_GIT_HOOKS_MANIFEST_STALE", f"Hook manifest is not valid JSON: {exc.msg}", stage="plan", owner_role="human", requires_human=True)],
+        ) from exc
+    if not isinstance(value, dict):
+        raise InstallHooksFailure(
+            "blocked",
+            "E_INSTALL_GIT_HOOKS_MANIFEST_STALE",
+            "Hook manifest must be a JSON object.",
+            blockers=[blocker("E_INSTALL_GIT_HOOKS_MANIFEST_STALE", "Hook manifest must be a JSON object.", stage="plan", owner_role="human", requires_human=True)],
+        )
+    return value
+
+
+def operation_plan(request: dict[str, Any]) -> dict[str, Any]:
+    return response(request, ok=True, status="pass", result={"plan": plan_payload(request)})
+
+
+def operation_install(request: dict[str, Any]) -> dict[str, Any]:
+    if request.get("input", {}).get("approval") != INSTALL_APPROVAL:
+        return response(
+            request,
+            ok=False,
+            status="blocked",
+            blockers=[blocker("E_INSTALL_GIT_HOOKS_APPROVAL_REQUIRED", f"Install requires explicit approval phrase: {INSTALL_APPROVAL}", stage="plan", owner_role="human", requires_human=True)],
+            result={"required_approval": INSTALL_APPROVAL, "plan": plan_payload(request)},
+        )
+
+    root = repo_root_from_request(request)
+    hooks_dir = git_hooks_dir(root)
+    files = expected_hook_files(root, hooks_dir)
+    conflicts: list[str] = []
+    for item in files:
+        path = Path(item["path"])
+        if path.exists():
+            raw = path.read_text(encoding="utf-8")
+            digest = digest_bytes(raw.encode("utf-8"))
+            if MARKER not in raw or digest != item["digest"]:
+                conflicts.append(str(path))
+    if conflicts:
+        return response(
+            request,
+            ok=False,
+            status="blocked",
+            blockers=[blocker("E_INSTALL_GIT_HOOKS_TARGET_CONFLICT", "Refusing to overwrite existing non-Codex-Bandit hooks.", stage="plan", owner_role="human", requires_human=True)],
+            result={"conflicts": conflicts, "plan": plan_payload(request)},
+        )
+
+    hooks_dir.mkdir(parents=True, exist_ok=True)
+    session_hook_path(root).parent.mkdir(parents=True, exist_ok=True)
+    for item in files:
+        path = Path(item["path"])
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(item["content"], encoding="utf-8")
+        path.chmod(0o755)
+
+    manifest = {
+        "schema_version": "codex-bandit.git-hooks-manifest.v1",
+        "hook_set_id": HOOK_SET_ID,
+        "installed_at": now_iso(),
+        "installed_by": request.get("input", {}).get("installed_by") or os.environ.get("USER") or "unknown",
+        "repo_root": str(root),
+        "git_hooks_dir": str(hooks_dir),
+        "managed_paths": [item["path"] for item in files],
+        "hooks": [
+            {
+                "name": item["name"],
+                "path": item["path"],
+                "digest": item["digest"],
+                "blocking_default": item["blocking_default"],
+            }
+            for item in files
+        ],
+    }
+    manifest_path(root, hooks_dir).write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return response(request, ok=True, status="pass", result={"installed": True, "plan": plan_payload(request, manifest)})
+
+
+def operation_uninstall(request: dict[str, Any]) -> dict[str, Any]:
+    if request.get("input", {}).get("approval") != UNINSTALL_APPROVAL:
+        return response(
+            request,
+            ok=False,
+            status="blocked",
+            blockers=[blocker("E_INSTALL_GIT_HOOKS_APPROVAL_REQUIRED", f"Uninstall requires explicit approval phrase: {UNINSTALL_APPROVAL}", stage="plan", owner_role="human", requires_human=True)],
+            result={"required_approval": UNINSTALL_APPROVAL},
+        )
+
+    root = repo_root_from_request(request)
+    hooks_dir = git_hooks_dir(root)
+    manifest_file = manifest_path(root, hooks_dir)
+    manifest = read_manifest(manifest_file)
+    if not manifest:
+        return response(request, ok=True, status="pass", result={"removed": [], "skipped": [], "idempotent": True, "manifest_present": False})
+
+    expected = {item["path"]: item for item in expected_hook_files(root, hooks_dir)}
+    manifest_paths = manifest.get("managed_paths") if isinstance(manifest.get("managed_paths"), list) else []
+    removed: list[str] = []
+    skipped: list[dict[str, str]] = []
+    warnings: list[dict[str, Any]] = []
+    unsafe_skips = False
+    for raw in manifest_paths:
+        if not isinstance(raw, str) or raw not in expected:
+            skipped.append({"path": str(raw), "reason": "not an expected Codex Bandit hook path"})
+            unsafe_skips = True
+            continue
+        path = Path(raw)
+        if not path.exists():
+            skipped.append({"path": str(path), "reason": "already missing"})
+            continue
+        content = path.read_text(encoding="utf-8")
+        digest = digest_bytes(content.encode("utf-8"))
+        if MARKER not in content or digest != expected[raw]["digest"]:
+            skipped.append({"path": str(path), "reason": "current hook is drifted or not plugin-managed"})
+            unsafe_skips = True
+            warnings.append({"code": "W_INSTALL_GIT_HOOKS_UNINSTALL_SKIPPED_DRIFTED", "message": f"Skipped drifted or non-plugin-managed hook: {path}"})
+            continue
+        path.unlink()
+        removed.append(str(path))
+
+    if manifest_file.exists() and not unsafe_skips:
+        manifest_file.unlink()
+        removed.append(str(manifest_file))
+    elif unsafe_skips:
+        warnings.append({"code": "W_INSTALL_GIT_HOOKS_MANIFEST_RETAINED", "message": "Manifest retained because one or more listed files were not safe to remove."})
+    return response(request, ok=True, status="pass", warnings=warnings, result={"removed": removed, "skipped": skipped, "idempotent": True})
+
+
+def main() -> int:
+    request, parse_error = None, None
+    raw = sys.stdin.read()
+    if not raw.strip():
+        parse_error = "empty request"
+    else:
+        try:
+            request = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            parse_error = f"request is not JSON: {exc.msg}"
+    if parse_error or not isinstance(request, dict):
+        return emit(response(None, ok=False, status="invalid_input", errors=[error("E_SCHEMA_INVALID", parse_error or "request must be a JSON object")]))
+    try:
+        validate_request(request, "install-git-hooks")
+        operation = request["operation"]
+        if operation == "plan":
+            return emit(operation_plan(request))
+        if operation == "install":
+            return emit(operation_install(request))
+        if operation == "uninstall":
+            return emit(operation_uninstall(request))
+        return emit(response(request, ok=False, status="invalid_input", errors=[error("E_SCHEMA_INVALID", f"unsupported install-git-hooks operation: {operation}", field_path="/operation")]))
+    except InstallHooksFailure as exc:
+        return emit(response(request, ok=False, status=exc.status, blockers=exc.blockers, errors=exc.errors, warnings=exc.warnings, result=exc.result))
+    except ScriptFailure as exc:
+        return emit(
+            response(
+                request,
+                ok=False,
+                status=exc.status,
+                blockers=exc.blockers,
+                errors=exc.errors or [error(exc.code, exc.message)],
+                warnings=exc.warnings,
+                result=exc.result,
+            )
+        )
+    except Exception as exc:
+        return emit(response(request, ok=False, status="runtime_error", errors=[error("E_RUNTIME_FAILURE", str(exc))]))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,92 @@
+{
+  "schema_version": "codex-bandit.hooks-mcp-fixtures.v1",
+  "fixtures": [
+    {
+      "name": "fixture_09_git_hooks_plan_exact_paths",
+      "scenario": "hook_plan",
+      "expected": {
+        "status": "pass",
+        "managed_path_count": 3,
+        "approval_required": "INSTALL codex-bandit git hooks"
+      }
+    },
+    {
+      "name": "fixture_09_git_hooks_install_requires_explicit_approval",
+      "scenario": "hook_install_without_approval",
+      "expected": {
+        "status": "blocked",
+        "blocker_code": "E_INSTALL_GIT_HOOKS_APPROVAL_REQUIRED"
+      }
+    },
+    {
+      "name": "fixture_09_git_hooks_refuse_user_hook_conflict",
+      "scenario": "hook_user_conflict",
+      "expected": {
+        "status": "blocked",
+        "blocker_code": "E_INSTALL_GIT_HOOKS_TARGET_CONFLICT",
+        "user_hook_preserved": true
+      }
+    },
+    {
+      "name": "fixture_09_git_hooks_uninstall_idempotent_only_owned",
+      "scenario": "hook_uninstall",
+      "expected": {
+        "status": "pass",
+        "second_uninstall_status": "pass"
+      }
+    },
+    {
+      "name": "fixture_09_hooks_missing_state_advisory_nonblocking",
+      "scenario": "hook_missing_state_advisory",
+      "expected": {
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "fixture_10_hooks_blocking_stage_advisory_default_opt_in_blocks",
+      "scenario": "hook_blocking_stage_advisory_default",
+      "expected": {
+        "default_exit_code": 0,
+        "blocking_exit_code": 1,
+        "blocking_env": "CODEX_BANDIT_HOOK_BLOCKING=1"
+      }
+    },
+    {
+      "name": "fixture_10_git_hooks_uninstall_manifest_tamper_outside_path_survives",
+      "scenario": "hook_uninstall_manifest_tamper",
+      "expected": {
+        "status": "pass",
+        "outside_file_preserved": true,
+        "skip_reason": "not an expected Codex Bandit hook path",
+        "manifest_retained": true
+      }
+    },
+    {
+      "name": "fixture_10_git_hooks_uninstall_drifted_managed_path_skipped",
+      "scenario": "hook_uninstall_drifted_managed",
+      "expected": {
+        "status": "pass",
+        "drifted_file_retained": true,
+        "skip_reason": "current hook is drifted or not plugin-managed",
+        "manifest_retained": true
+      }
+    },
+    {
+      "name": "fixture_10_git_hooks_uninstall_symlinked_managed_path_target_survives",
+      "scenario": "hook_uninstall_symlinked_managed",
+      "expected": {
+        "status": "pass",
+        "outside_file_preserved": true,
+        "skip_reason": "current hook is drifted or not plugin-managed",
+        "manifest_retained": true
+      }
+    },
+    {
+      "name": "fixture_09_mcp_verify_stage_parity",
+      "scenario": "mcp_verify_stage_parity",
+      "expected": {
+        "tool": "codex_bandit_verify_stage"
+      }
+    }
+  ]
+}

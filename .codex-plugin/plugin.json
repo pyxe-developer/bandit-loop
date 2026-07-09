@@ -1,0 +1,24 @@
+{
+  "name": "codex-bandit",
+  "version": "0.1.0",
+  "description": "Codex Bandit plugin",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Codex Bandit",
+    "shortDescription": "Run a stage-gated Codex workflow.",
+    "longDescription": "Codex Bandit provides an assisted, evidence-led workflow for planning, testing, implementation, adversarial review, PR preparation, delivery, and closeout.",
+    "developerName": "Local developer",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Orchestrate this work item with Codex Bandit."
+    ]
+  }
+}
