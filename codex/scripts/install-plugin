@@ -22,6 +22,10 @@ PLUGIN_NAME = "codex-bandit"
 DEFAULT_MARKETPLACE_NAME = "codex-bandit-local"
 SCRIPT_REQUEST = "codex-bandit.script-request.v1"
 WORK_ITEM_ID = "codex-bandit-install"
+INSTALL_AGENTS_APPROVAL = "INSTALL codex-bandit agents"
+UNINSTALL_AGENTS_APPROVAL = "UNINSTALL codex-bandit agents"
+INSTALL_HOOKS_APPROVAL = "INSTALL codex-bandit git hooks"
+UNINSTALL_HOOKS_APPROVAL = "UNINSTALL codex-bandit git hooks"
 
 
 class InstallFailure(Exception):
@@ -32,7 +36,20 @@ def shlex_join(args: list[str]) -> str:
     return shlex.join(args)
 
 
-def run_command(args: list[str], *, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+def print_process_output(proc: subprocess.CompletedProcess[str]) -> None:
+    if proc.stdout:
+        print(proc.stdout, end="")
+    if proc.stderr:
+        print(proc.stderr, end="", file=sys.stderr)
+
+
+def run_command(
+    args: list[str],
+    *,
+    env: dict[str, str] | None = None,
+    allowed_error_substrings: tuple[str, ...] = (),
+    allowed_error_message: str | None = None,
+) -> subprocess.CompletedProcess[str]:
     try:
         proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env, check=False)
     except OSError as exc:
@@ -41,12 +58,17 @@ def run_command(args: list[str], *, env: dict[str, str] | None = None) -> subpro
             f"Unable to run command: {shlex_join(args)} ({reason}). "
             "Install the required executable or pass --codex-cli for the Codex CLI."
         ) from exc
-    if proc.stdout:
-        print(proc.stdout, end="")
-    if proc.stderr:
-        print(proc.stderr, end="", file=sys.stderr)
     if proc.returncode != 0:
+        combined = f"{proc.stdout}\n{proc.stderr}"
+        if any(needle in combined for needle in allowed_error_substrings):
+            if allowed_error_message:
+                print(allowed_error_message)
+            else:
+                print_process_output(proc)
+            return proc
+        print_process_output(proc)
         raise InstallFailure(f"Command failed ({proc.returncode}): {shlex_join(args)}")
+    print_process_output(proc)
     return proc
 
 
@@ -182,13 +204,13 @@ def request_base(command: str, operation: str, repo_root: Path, *, request_suffi
     }
 
 
-def install_agents(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> None:
-    request = request_base("install-agents", "install", repo_root, request_suffix="install")
-    request["input"] = {
-        "approval": "INSTALL codex-bandit agents",
+def agent_input(args: argparse.Namespace, *, approval: str | None = None) -> dict[str, Any]:
+    out = {
         "codex_cli_path": args.codex_cli,
         "installed_by": args.installed_by,
     }
+    if approval:
+        out["approval"] = approval
     for attr, key in [
         ("agent_home", "agent_home"),
         ("model", "model"),
@@ -197,7 +219,84 @@ def install_agents(plugin_root: Path, repo_root: Path, args: argparse.Namespace)
     ]:
         value = getattr(args, attr)
         if value:
-            request["input"][key] = value
+            out[key] = value
+    return out
+
+
+def hooks_input(args: argparse.Namespace, *, approval: str | None = None) -> dict[str, Any]:
+    out = {"installed_by": args.installed_by}
+    if approval:
+        out["approval"] = approval
+    return out
+
+
+def plan_agents(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    request = request_base("install-agents", "plan", repo_root, request_suffix="plan")
+    request["input"] = agent_input(args)
+    return run_json_script(plugin_root / "scripts" / "install-agents", request)
+
+
+def plan_hooks(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    request = request_base("install-git-hooks", "plan", repo_root, request_suffix="plan")
+    request["input"] = hooks_input(args)
+    return run_json_script(plugin_root / "scripts" / "install-git-hooks", request)
+
+
+def print_paths(paths: Any) -> None:
+    if not isinstance(paths, list) or not paths:
+        print("  - (none reported)")
+        return
+    for path in paths:
+        print(f"  - {path}")
+
+
+def print_optional_install_preflight(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> None:
+    if not args.with_agents and not args.with_hooks:
+        return
+
+    print("")
+    print("Optional integration preflight")
+    print("==============================")
+    if args.with_agents:
+        payload = plan_agents(plugin_root, repo_root, args)
+        plan = payload.get("result", {}).get("plan", {})
+        print("Enforced-mode agents will create or replace only managed Codex Bandit TOML files:")
+        print(f"Agent home: {plan.get('agent_home')}")
+        print(f"Manifest: {plan.get('manifest_path')}")
+        print("Managed agent paths:")
+        print_paths(plan.get("managed_paths"))
+        print("")
+    if args.with_hooks:
+        payload = plan_hooks(plugin_root, repo_root, args)
+        plan = payload.get("result", {}).get("plan", {})
+        print("Advisory hooks will create or replace only managed Codex Bandit hook files:")
+        print(f"Repo root: {plan.get('repo_root')}")
+        print(f"Git hooks dir: {plan.get('git_hooks_dir')}")
+        print("Managed hook paths:")
+        print_paths(plan.get("managed_paths"))
+        print("Hooks exit 0 by default unless CODEX_BANDIT_HOOK_BLOCKING=1 is set.")
+        print("")
+
+
+def print_uninstall_result(label: str, payload: dict[str, Any]) -> None:
+    result = payload.get("result", {})
+    removed = result.get("removed") if isinstance(result, dict) else None
+    skipped = result.get("skipped") if isinstance(result, dict) else None
+    print(f"{label}:")
+    print("Removed:")
+    print_paths(removed)
+    if skipped:
+        print("Skipped:")
+        for item in skipped:
+            if isinstance(item, dict):
+                print(f"  - {item.get('path')}: {item.get('reason')}")
+            else:
+                print(f"  - {item}")
+
+
+def install_agents(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> None:
+    request = request_base("install-agents", "install", repo_root, request_suffix="install")
+    request["input"] = agent_input(args, approval=INSTALL_AGENTS_APPROVAL)
 
     payload = run_json_script(plugin_root / "scripts" / "install-agents", request)
     evidence = payload.get("result", {}).get("validation_evidence", {})
@@ -219,10 +318,7 @@ def install_agents(plugin_root: Path, repo_root: Path, args: argparse.Namespace)
 
 def install_hooks(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> None:
     request = request_base("install-git-hooks", "install", repo_root, request_suffix="install")
-    request["input"] = {
-        "approval": "INSTALL codex-bandit git hooks",
-        "installed_by": args.installed_by,
-    }
+    request["input"] = hooks_input(args, approval=INSTALL_HOOKS_APPROVAL)
     payload = run_json_script(plugin_root / "scripts" / "install-git-hooks", request)
     plan = payload.get("result", {}).get("plan", {})
     paths = plan.get("managed_paths") if isinstance(plan, dict) else None
@@ -231,11 +327,94 @@ def install_hooks(plugin_root: Path, repo_root: Path, args: argparse.Namespace) 
     print("Hooks exit 0 by default; set CODEX_BANDIT_HOOK_BLOCKING=1 to make them blocking.")
 
 
+def uninstall_agents(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> None:
+    request = request_base("install-agents", "uninstall", repo_root, request_suffix="uninstall")
+    request["input"] = agent_input(args, approval=UNINSTALL_AGENTS_APPROVAL)
+    payload = run_json_script(plugin_root / "scripts" / "install-agents", request)
+    print_uninstall_result("Uninstalled enforced-mode agents", payload)
+
+
+def uninstall_hooks(plugin_root: Path, repo_root: Path, args: argparse.Namespace) -> None:
+    request = request_base("install-git-hooks", "uninstall", repo_root, request_suffix="uninstall")
+    request["input"] = hooks_input(args, approval=UNINSTALL_HOOKS_APPROVAL)
+    payload = run_json_script(plugin_root / "scripts" / "install-git-hooks", request)
+    print_uninstall_result("Uninstalled advisory hooks", payload)
+
+
+def remove_empty_dir(path: Path) -> None:
+    try:
+        path.rmdir()
+    except FileNotFoundError:
+        return
+    except OSError:
+        print(f"Retained non-empty directory: {path}")
+
+
+def cleanup_local_marketplace(root: Path, plugin_root: Path, name: str) -> None:
+    if not root.exists():
+        print(f"Local marketplace root already absent: {root}")
+        return
+
+    marketplace_json = root / ".agents" / "plugins" / "marketplace.json"
+    link = root / "plugins" / PLUGIN_NAME
+    if link.is_symlink():
+        target = link.resolve(strict=False)
+        if target == plugin_root:
+            link.unlink()
+            print(f"Removed local marketplace symlink: {link}")
+        else:
+            print(f"Skipped unexpected marketplace symlink: {link} -> {target}")
+    elif link.exists():
+        print(f"Skipped non-symlink marketplace entry: {link}")
+
+    if marketplace_json.exists():
+        try:
+            value = json.loads(marketplace_json.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            value = None
+        plugins = value.get("plugins") if isinstance(value, dict) else None
+        owns_manifest = (
+            isinstance(value, dict)
+            and value.get("name") == name
+            and isinstance(plugins, list)
+            and any(
+                isinstance(item, dict)
+                and item.get("name") == PLUGIN_NAME
+                and isinstance(item.get("source"), dict)
+                and item["source"].get("path") == f"./plugins/{PLUGIN_NAME}"
+                for item in plugins
+            )
+        )
+        if owns_manifest:
+            marketplace_json.unlink()
+            print(f"Removed local marketplace manifest: {marketplace_json}")
+        else:
+            print(f"Skipped unexpected marketplace manifest: {marketplace_json}")
+
+    remove_empty_dir(root / ".agents" / "plugins")
+    remove_empty_dir(root / ".agents")
+    remove_empty_dir(root / "plugins")
+    remove_empty_dir(root)
+
+
+def uninstall_plugin(plugin_root: Path, marketplace_root: Path, args: argparse.Namespace) -> None:
+    default_codex_home().mkdir(parents=True, exist_ok=True)
+    selector = f"{PLUGIN_NAME}@{args.marketplace_name}"
+    run_command([args.codex_cli, "plugin", "remove", selector])
+    run_command(
+        [args.codex_cli, "plugin", "marketplace", "remove", args.marketplace_name],
+        allowed_error_substrings=("not configured or installed",),
+        allowed_error_message=f"Marketplace already absent: {args.marketplace_name}",
+    )
+    cleanup_local_marketplace(marketplace_root, plugin_root, args.marketplace_name)
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Install Codex Bandit as a local Codex plugin.")
-    parser.add_argument("--with-agents", action="store_true", help="also install bundled enforced-mode Codex agents")
-    parser.add_argument("--with-hooks", action="store_true", help="also install bundled advisory git/session hooks")
-    parser.add_argument("--with-all", action="store_true", help="install plugin, enforced agents, and advisory hooks")
+    parser.add_argument("command", nargs="?", choices=["install", "uninstall"], default="install", help="operation to run")
+    parser.add_argument("--with-agents", action="store_true", help="also manage bundled enforced-mode Codex agents")
+    parser.add_argument("--with-hooks", action="store_true", help="also manage bundled advisory git/session hooks")
+    parser.add_argument("--with-all", action="store_true", help="manage plugin, enforced agents, and advisory hooks")
     parser.add_argument("--plugin-root", default=str(default_plugin_root()), help="path to the Codex Bandit plugin root")
     parser.add_argument("--repo-root", help="target repository root for optional hooks and installer envelopes")
     parser.add_argument("--marketplace-root", help="local marketplace root to create")
@@ -265,6 +444,19 @@ def main(argv: list[str] | None = None) -> int:
 
         print(f"Plugin root: {plugin_root}")
         print(f"Marketplace: {args.marketplace_name} at {marketplace_root}")
+
+        if args.command == "uninstall":
+            if args.with_hooks:
+                uninstall_hooks(plugin_root, repo_root, args)
+            if args.with_agents:
+                uninstall_agents(plugin_root, repo_root, args)
+            uninstall_plugin(plugin_root, marketplace_root, args)
+            if not args.with_agents and not args.with_hooks:
+                print("Optional integrations were not requested for uninstall. Use --with-agents, --with-hooks, or --with-all to remove them.")
+            print("Uninstalled Codex Bandit plugin. Start a new Codex session to unload plugin capabilities.")
+            return 0
+
+        print_optional_install_preflight(plugin_root, repo_root, args)
         write_marketplace(marketplace_root, plugin_root, args.marketplace_name)
         run_command([args.codex_cli, "plugin", "marketplace", "add", str(marketplace_root)])
         run_command([args.codex_cli, "plugin", "add", f"{PLUGIN_NAME}@{args.marketplace_name}"])

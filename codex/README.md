@@ -44,6 +44,28 @@ Use `--repo-root /path/to/repo` to target a repo other than the current Git
 checkout. Hooks exit 0 by default; set `CODEX_BANDIT_HOOK_BLOCKING=1` only when
 you want them to block commits or pushes.
 
+When optional integrations are requested, the installer prints a preflight
+summary of managed agent and hook paths before writing them. The hook preflight
+calls out the target repo, Git hooks directory, and `.codex-bandit` session hook.
+
+Uninstall the local plugin registration and cache with:
+
+```sh
+codex/scripts/install-plugin uninstall
+```
+
+Optional integrations are removed only when explicitly requested:
+
+```sh
+codex/scripts/install-plugin uninstall --with-agents
+codex/scripts/install-plugin uninstall --with-hooks
+codex/scripts/install-plugin uninstall --with-all
+```
+
+The uninstall path delegates to the bundled safe uninstallers for agents and
+hooks. Those uninstallers remove only Codex Bandit managed files whose marker
+and digest still match, and leave drifted or unexpected files for inspection.
+
 ## Assisted Mode
 
 Use assisted mode when you want the workflow guardrails without installing
