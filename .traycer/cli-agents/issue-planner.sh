@@ -5,4 +5,14 @@ ROLE=ISSUE_PLANNER
 ROLE_FILE=issue-planner
 SKILL=plan-work-item
 LEVEL=RO
-. "$(dirname "$0")/_lib.sh"
+SELF=$0
+while [ -L "$SELF" ]; do
+  LINK=$(readlink "$SELF")
+  case "$LINK" in
+    /*) SELF=$LINK ;;
+    *) SELF=$(cd "$(dirname "$SELF")" && pwd)/$LINK ;;
+  esac
+done
+TRAYCER_AGENT_DIR=$(cd "$(dirname "$SELF")" && pwd)
+export TRAYCER_AGENT_DIR
+. "$TRAYCER_AGENT_DIR/_lib.sh"

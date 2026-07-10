@@ -9,6 +9,18 @@ Coordinate one Codex Bandit work item through the assisted workflow:
 
 `plan -> red -> green -> adversarial -> prepare_pr -> hitl_merge_checkpoint -> land_deploy -> closeout`
 
+## Epic tracking
+
+When the user is coordinating an epic, initialize or update its visual tracker
+with `codex_bandit_dashboard` operation `upsert`. Include every known work item
+in `input.work_item_ids`; do not infer missing IDs. The durable files are
+`.codex-bandit/epics/<epic_id>/epic.json` and `dashboard.html`.
+
+The dashboard is a generated projection only. Route cards and evidence ledgers
+remain authoritative. Assisted orchestration refreshes every epic dashboard
+that contains the current work item. Return the dashboard path to the user when
+the orchestrator response includes `result.dashboard_paths`.
+
 ## Capability Mode
 
 Default mode is assisted. Assisted mode is a guided evidence workflow:

@@ -24,7 +24,7 @@
 # See HANDOFF-populate-cli-agents.md for the full contract.
 set -eu
 
-LIB_DIR=$(cd "$(dirname "$0")" && pwd)
+LIB_DIR=$(cd "${TRAYCER_AGENT_DIR:-$(dirname "$0")}" && pwd)
 REPO_ROOT=$(cd "$LIB_DIR/../.." && pwd)
 
 # Optional .env beside this lib supplies the per-role knobs. Plain KEY=value
@@ -45,6 +45,11 @@ done
 # quotes keep the value inert so eval assigns it verbatim.
 eval "CLI=\"\${TRAYCER_${ROLE}_CLI:-codex}\""
 eval "MODEL=\"\${TRAYCER_${ROLE}_MODEL:-}\""
+
+if [ "$CLI" = codex ] && [ "$MODEL" = gpt-5.6-sol ]; then
+  echo "$ROLE_FILE: model gpt-5.6-sol is not available on the Codex harness; use gpt-5.5 or leave TRAYCER_${ROLE}_MODEL empty" >&2
+  exit 78
+fi
 
 # Traycer task prompt: prefer the temp file, fall back to the env var.
 if [ -n "${TRAYCER_PROMPT_TMP_FILE:-}" ] && [ -r "$TRAYCER_PROMPT_TMP_FILE" ]; then
@@ -89,7 +94,7 @@ case "$CLI" in
       WRITE|WRITE_NET) set -- "$@" --permission-mode acceptEdits ;; # network is inherent
       *) echo "$ROLE_FILE: bad LEVEL '$LEVEL'" >&2; exit 78 ;;
     esac
-    "$@" < "$PROMPT_FILE"
+    (cd "$REPO_ROOT" && "$@" < "$PROMPT_FILE")
     ;;
   opencode)
     # Aperture preflight. opencode is the only lane whose model calls route

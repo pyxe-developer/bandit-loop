@@ -52,6 +52,7 @@ The stage skills are available through Pi's native skill system. The extension
 also registers these tools for in-session orchestration:
 
 - `codex_bandit_orchestrate`
+- `codex_bandit_dashboard`
 - `codex_bandit_route_card`
 - `codex_bandit_evidence_ledger`
 - `codex_bandit_verify_stage`
@@ -64,6 +65,40 @@ the `bandit-loop` command, for example:
 ```sh
 bandit-loop orchestrate-assisted < request.json
 ```
+
+## Epic dashboard
+
+Bandit can maintain a static HTML view of an epic without introducing a
+second source of workflow truth. Create or update an epic manifest with the
+`codex_bandit_dashboard` tool (or `bandit-loop dashboard`) using this request:
+
+```json
+{
+  "schema_version": "codex-bandit.dashboard-request.v1",
+  "operation": "upsert",
+  "repo_root": ".",
+  "epic_id": "billing-reliability",
+  "input": {
+    "title": "Billing reliability",
+    "description": "Make retries and reconciliation safe.",
+    "work_item_ids": ["bill-101", "bill-102", "bill-103"]
+  },
+  "request_id": "dashboard_billing_reliability"
+}
+```
+
+This writes the durable manifest and generated view to:
+
+```text
+.codex-bandit/epics/billing-reliability/epic.json
+.codex-bandit/epics/billing-reliability/dashboard.html
+```
+
+Every `orchestrate-assisted` call for a listed work item refreshes its epic
+dashboard. The HTML shows overall progress, active and blocked counts, each
+item's current stage, pipeline position, blockers, and last evidence time.
+Use `operation: "render"` to regenerate an epic or `operation: "status"` to
+read the same projection as JSON without writing HTML.
 
 This Pi port provides the assisted workflow. Codex-specific MCP registration,
 Codex custom-agent installation, and Codex Git/session hook installation are

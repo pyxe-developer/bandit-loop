@@ -123,3 +123,12 @@ blocks progress rather than being inferred from chat or remote text.
 
 The host integrations are adapters around that contract; they do not replace
 the engine's gates.
+
+## Visual epic tracking in Pi
+
+The Pi package includes `codex_bandit_dashboard` and the equivalent
+`bandit-loop dashboard` command. It generates a self-contained HTML artifact
+under `.codex-bandit/epics/<epic_id>/dashboard.html` from the epic manifest,
+route cards, and evidence ledgers. Orchestration refreshes dashboards
+automatically as listed work items advance. See [`pi/README.md`](pi/README.md)
+for the request format.

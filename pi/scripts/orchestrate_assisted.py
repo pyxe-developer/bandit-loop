@@ -23,6 +23,7 @@ from bandit_runtime import (  # noqa: E402
     digest_json,
     validate_role_output,
 )
+from dashboard_runtime import refresh_for_work_item  # noqa: E402
 
 
 REQUEST_SCHEMA = "codex-bandit.orchestrate-request.v1"
@@ -1187,7 +1188,14 @@ def main() -> int:
     if parse_error:
         return emit(response(None, ok=False, status="invalid_input", errors=[error("E_SCHEMA_INVALID", parse_error)]))
     try:
-        return emit(run(request))
+        payload = run(request)
+        try:
+            dashboard_paths = refresh_for_work_item(Path(request["repo_root"]).expanduser().resolve(), request["work_item_id"])
+            if dashboard_paths:
+                payload.setdefault("result", {})["dashboard_paths"] = dashboard_paths
+        except Exception as exc:
+            payload.setdefault("warnings", []).append({"code": "W_DASHBOARD_REFRESH_FAILED", "message": str(exc)})
+        return emit(payload)
     except OrchestrateError as exc:
         return emit(
             response(

@@ -10,6 +10,7 @@ const requestParameters = Type.Object({
 });
 
 const toolScripts = {
+	codex_bandit_dashboard: "dashboard",
 	codex_bandit_delivery_operation: "delivery-operation",
 	codex_bandit_evidence_ledger: "evidence-ledger",
 	codex_bandit_orchestrate: "orchestrate-assisted",

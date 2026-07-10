@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const scripts = new Set([
+  "dashboard",
   "delivery-operation",
   "evidence-ledger",
   "orchestrate-assisted",
